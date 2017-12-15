@@ -24,20 +24,27 @@ namespace local_matching.DBODBC
 
         public int Go(string queryString)
         {
-            OdbcCommand command = new OdbcCommand(queryString);
+            int cnt = 0;
 
-            string connectionString="Driver={" + driver + "};"+"Server=" + server + ";"+database + ";Uid=" + user + ";Pwd=" + password + ";";
-
-            int cnt=0;
-
-            using (OdbcConnection connection = new OdbcConnection(connectionString))
+            try
             {
-                command.Connection = connection;
-                connection.Open();
-                cnt=command.ExecuteNonQuery();
+                OdbcCommand command = new OdbcCommand(queryString);
 
-                // The connection is automatically closed at 
-                // the end of the Using block.
+                string connectionString="Driver={" + driver + "};"+"Server=" + server + ";"+database + ";Uid=" + user + ";Pwd=" + password + ";";
+                
+                using (OdbcConnection connection = new OdbcConnection(connectionString))
+                {
+                    command.Connection = connection;
+                    connection.Open();
+                    cnt=command.ExecuteNonQuery();
+
+                    // The connection is automatically closed at 
+                    // the end of the Using block.
+                }
+            }
+            catch
+            {
+                // DB Query failed, this will simply return 0
             }
 
             return cnt;
@@ -45,54 +52,58 @@ namespace local_matching.DBODBC
 
         public string[] Read(string queryString)
         {
-            OdbcCommand command = new OdbcCommand(queryString);
-
-            string connectionString = "Driver={" + driver + "};" + "Server=" + server + ";" + database + ";Uid=" + user + ";Pwd=" + password + ";";
-            //  
-
             List<string> mycol = new List<string>();
 
-            using (OdbcConnection connection = new OdbcConnection(connectionString))
+            try
             {
-                command.Connection = connection;
-                connection.Open();
+                OdbcCommand command = new OdbcCommand(queryString);
 
-                OdbcDataReader myReader = command.ExecuteReader();
+                string connectionString = "Driver={" + driver + "};" + "Server=" + server + ";" + database + ";Uid=" + user + ";Pwd=" + password + ";";
 
-
-                // This needs to transfer to a list of strings
-                try         
+                using (OdbcConnection connection = new OdbcConnection(connectionString))
                 {
-                    while (myReader.Read())
+                    command.Connection = connection;
+                    connection.Open();
+
+                    OdbcDataReader myReader = command.ExecuteReader();
+
+                    // This needs to transfer to a list of strings
+                    try         
                     {
-                        string line="";
-                        for(int i=0;i<myReader.FieldCount;i++)
+                        while (myReader.Read())
                         {
-                            if (myReader[i] != null)
+                            string line="";
+                            for(int i=0;i<myReader.FieldCount;i++)
                             {
-                                line += "|" + myReader.GetValue(i).ToString();
-                            }                            
-                            else
-                            {
-                                line += "|";
+                                if (myReader[i] != null)
+                                {
+                                    line += "|" + myReader.GetValue(i).ToString();
+                                }                            
+                                else
+                                {
+                                    line += "|";
+                                }
                             }
+                            line+="|";
+    #if DEBUG
+                            Console.WriteLine(line);
+    #endif
+                            mycol.Add(line);
                         }
-                        line+="|";
-#if DEBUG
-                        Console.WriteLine(line);
-#endif
-                        mycol.Add(line);
                     }
+                    finally
+                    {
+                        myReader.Close();
+                        connection.Close();
+                    }
+                    // The connection is automatically closed at 
+                    // the end of the Using block.
                 }
-                finally
-                {
-                    myReader.Close();
-                    connection.Close();
-                }
-                // The connection is automatically closed at 
-                // the end of the Using block.
             }
-
+            catch
+            {
+                // The query failed for some reason, so just send back empty array
+            }
             return mycol.ToArray();
         }
 
