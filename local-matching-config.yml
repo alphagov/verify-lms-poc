@@ -17,16 +17,18 @@ Version:  0.1
 # ------------------------
 # The local database is known to the code, so it's structure is predefined by the LMS API
 
-#LODBC:     "MariaDB ODBC 3.0 Driver"
-#LSERVER:   "127.0.0.1"
-#LDB:       "Database=LMS-local"
-#LDBUN:     "root"
-#LDBPW:     "mypass"
 LODBC:     "Microsoft Access Driver (*.mdb, *.accdb)"
 LSERVER:   "127.0.0.1"
 LDB:       "Dbq=.\\demo-LMS.accdb"
 LDBUN:     "Admin"
 LDBPW:     ""
+
+#----------------------- This has been left in as an example of MariaDB conenctor
+                #LODBC:     "MariaDB ODBC 3.0 Driver"
+                #LSERVER:   "127.0.0.1"
+                #LDB:       "Database=LMS-local"
+                #LDBUN:     "root"
+                #LDBPW:     "mypass"
 
 # ------------------------
 # Remote Database Settings
@@ -40,53 +42,75 @@ RDB:       "Dbq=.\\demo-LMS.accdb"
 RDBUN:     "Admin"
 RDBPW:     ""
 
-# -------------------
-# Alternative approach
-# -------------------
+# ------------------------------------------------------------------------------------------------
+# The following sections use substitution and label matching, to make this work, you must ensure
+# that the label you used for substitution is the same as the name. In addtion, it must be at least
+# 3 characters long, not share the first 3 characters with any other label.
+# The labels have the same name as they apprear in the JSON, so if those change, these must be also
+# changed otherwise it will not be able to match them up with each other.
 #
-# Pre-build the queries to return back sets of data
-# The question is do, you bring back a single set,
-# or keep pulling elements back that only unify the
-# different groups together.
-#
-# #SOMETHING# will be substitued with what ever is 
-# passed, for example, SURNAME, DOB, POSTCODE etc.
-#
-# We always do a like for strings, this is because
-# we may choose to truncate them, for example
-# to bring back as many as we can from a set
-# of data.
-#
-#
+
+# ------------------------
+# Local Matching Settings
+# ------------------------
+# This are the local database search criteria, this is how the local database will be searched
+# to find a PiD which we create using the LCreate approach
+
 LMatching:
     -   Name:   "PiD"
         Query:  "SELECT DISTINCT Id,PiD
                  FROM Matches
                  WHERE PiD = '#PID#'"
 
+# ------------------------
+# Local Create Settings
+# ------------------------
+# When we haven't been able to match, a new account is created, however all we do is
+# store the PID locally. When a future cycle 0 search comes in, it will use the LMatching
+# code above to try and find the record.
 LCreate:
     -   Name:   "PiD"
         Query:  "INSERT INTO Matches (PiD,TimeS) Values ( '#PID#' , NOW() )"
 
+# ------------------------
+# Remote Matching Settings
+# ------------------------
+# Matching names must be at least 3 characters, and those 3 characters cannot be duplicated
+# in another search, e.g. POSSIBLE and POSITION both have POS as their first 3 characters so
+# are not legal in the searching. This is due to the way that database results are collated 
 RMatching:
+                # Notice here we are actually defining how we do the remote search, 
+                # using only the first character. Better do it in config, rather than
+                # code modification
     -   Name:   "Surname"
         Query:  "SELECT DISTINCT a.Id,b.Surname,b.Verified,b.FromDate,b.ToDate
                 FROM Account a
                 LEFT JOIN Surname b ON a.Id = b.IdRef 
                 WHERE UCASE(b.Surname) LIKE LEFT(UCASE('#SURNAME#') , 1 )+'%'"
-                # Notice above, we are actually defining how we do the remote search, 
-                # using only the first character. Better do it in config, rather than
-                # code modification
 
+                # DOB is simple in its search, we are looking for the date difference
+                # in days to be zero, but we could also search for the same day, same month, 
+                # same year and combine the results
     -   Name:   "DoB"
         Query:  "SELECT DISTINCT a.ID,a.DoB,a.DoBVerified
                  FROM Account a
                  WHERE  DATEDIFF('d',a.DoB,'#DOB#')=0"
 
+                # {Postcodes are interesting, we could, as here, use it in its literal form
+                # but we could also try and pull back for areas, or sub-areas using just the first
+                # letters and the numbers that make it up
     -   Name:   "Postcode"
         Query:  "SELECT DISTINCT a.ID,b.Postcode,b.InternationalPostcode,b.Verified,b.FromDate,b.ToDate
                  FROM Account a
                  LEFT JOIN Address b on a.Id = b.IdLink
-                 WHERE b.Postcode LIKE '#POSTCODE#'
-                 OR    b.InternationalPostcode LIKE '#POSTCODE#'"
+                 WHERE b.Postcode LIKE '#POSTCODE#'"
 
+                 # This is obviously obsolete, we could have had "OR b.InternationalPostcode LIKE '#POSTCODE#'"
+                 # in the above SQL statement, but this is demonstrating that you can keep adding new queries
+                 # to access anything you want in the remote database to return it.
+    -   Name:   "InternationalPostcode"
+        Query:  "SELECT DISTINCT a.ID,b.Postcode,b.InternationalPostcode,b.Verified,b.FromDate,b.ToDate
+                 FROM Account a
+                 LEFT JOIN Address b on a.Id = b.IdLink
+                 WHERE b.InternationalPostcode LIKE '#INTERNATIONALPOSTCODE#'"
+                 

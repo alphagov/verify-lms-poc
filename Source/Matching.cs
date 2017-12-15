@@ -121,6 +121,7 @@ namespace local_matching.Matching
 
                         if (string.IsNullOrEmpty(PCto)) // ToDate couild be blank, meaning they are still there
                         {
+                            PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address.Current.InternationalPostCode));
                             PRET.Add("POSTCODE", GetSafe(Address.Current.PostCode));
                             PRET.Add("POSTCODEVER", GetSafe(Address.Current.Verified).ToString());
                             PRET.Add("POSTCODEFROM", GetSafe(Address.Current.FromDate));
@@ -132,6 +133,7 @@ namespace local_matching.Matching
                             dtTD = Convert.ToDateTime(PCto);
                             if (DateTime.Compare(dtTD, dtNow) >= 0)
                             {
+                                PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address.Current.InternationalPostCode));
                                 PRET.Add("POSTCODE", GetSafe(Address.Current.PostCode));
                                 PRET.Add("POSTCODEVER", GetSafe(Address.Current.Verified).ToString());
                                 PRET.Add("POSTCODEFROM", GetSafe(Address.Current.FromDate));
@@ -202,7 +204,6 @@ namespace local_matching.Matching
                 PRET.Add("MATCHING", ret[0]);
                 // We have a match, so would normally exit here
             }
-            //return PRET;
         }
 
         // If we don't find it locally, we need to say we don't
@@ -239,9 +240,9 @@ namespace local_matching.Matching
             for (int i = 0; i < post.Count(); i++) { PRET.Add(PR.Substring(0,3) + (i + 1).ToString(), post[i]); }
         }
 
-    // This function allows us to read values from the JSON which may not exist
-    // in the packet being sent.
-    public dynamic GetSafe(dynamic value)
+        // This function allows us to read values from the JSON which may not exist
+        // in the packet being sent.
+        public dynamic GetSafe(dynamic value)
         {
             dynamic FNto;
             try

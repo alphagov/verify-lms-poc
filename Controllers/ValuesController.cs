@@ -56,6 +56,14 @@ namespace local_matching.Controllers
             // See if we already have it
             value.AlreadyCreatedSearch( ref yamlc , ref PRET );
 
+            // Check if we found it in Cycle 0 search
+            string match_id = PRET.GetValueOrDefault("MATCHING");
+            if (!string.IsNullOrEmpty( match_id))
+            {
+#if DEBUG
+                Console.WriteLine("WE FOUND A CYCLE 0 MATCH - "+match_id);
+#endif
+            }
             // Do a trawl of the remote database
             value.TrawlRemoteDatabase(ref yamlc, ref PRET);
 
