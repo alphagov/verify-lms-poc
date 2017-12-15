@@ -1,0 +1,468 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using System.Data;
+using System.Data.Odbc;
+
+using QTMatching;
+using QTAccountCreation;
+using QTAccountCreation2;
+
+public class DB_Worker
+{
+    public void Go(string DBDriver)
+    {
+        string queryString = "INSERT INTO AddressLines (IDLINK,`Index`,Line) Values(1,1,'Northwind Traders')";
+        
+        OdbcCommand command = new OdbcCommand(queryString);
+
+        using (OdbcConnection connection = new OdbcConnection("Driver={"+DBDriver+"};Server=127.0.0.1;Database=LMS;Uid=root;Pwd=mypass;"))
+        {
+            command.Connection = connection;
+            connection.Open();
+            command.ExecuteNonQuery();
+
+            // The connection is automatically closed at 
+            // the end of the Using block.
+        }
+
+    }
+}
+ 
+namespace local_matching.Controllers
+{
+
+    [Route("local-matching")]
+    public class MatchingController : Controller
+    {
+        // GET api/values
+        [HttpPost("match")]
+        public dynamic Post([FromBody] Matching value )
+        {
+
+            // If we are a cycle 3 then we need to get this value
+            var DriversLicense="";
+            try
+            {
+                DriversLicense = value.Cycle3Dataset.Attributes.DriversLicence?.ToString() ?? "";
+            }
+            catch
+            {
+                DriversLicense = "THIS IS NOT A CYCLE 3 MATCH";
+            }
+
+            // Find out what the cycle3 matching values are
+            var HashPid = value.HashedPid?.ToString() ?? "";
+            var MatchId = value.MatchId?.ToString() ?? "";
+            var LOA = value.LevelOfAssurance?.ToString() ?? "";
+
+            Console.WriteLine("HashID: " + HashPid);
+            Console.WriteLine("DriversLicense: " + DriversLicense);
+            Console.WriteLine("MatchID: " + MatchId);
+            Console.WriteLine("Level of Assurance: " + LOA);
+
+            // If this is NULL then no address would be searched.
+            var Address = value.MatchingDataset.Addresses.GetEnumerator();
+
+            // Enumerate over the different addresses
+            int count=1;
+            try
+            {
+                while (Address.MoveNext())
+                {
+                    Console.WriteLine("--------------------------------- "+count);
+                    count++;
+                    var IPC = Address.Current.InternationalPostCode?.ToString() ?? "";
+                    var FD = Address.Current.FromDate?.ToString() ?? "";
+                    var TD = Address.Current.ToDate?.ToString() ?? "";
+                    var PC = Address.Current.PostCode?.ToString() ?? "";
+                    var VE = Address.Current.Verified; // This is a bool
+                    var UP = Address.Current.Uprn?.ToString() ?? "";
+
+                    var Lines = Address.Current.Lines.GetEnumerator();
+
+                    Console.WriteLine("From: " + FD + " To: " + TD);
+                    Console.WriteLine("INT: " + IPC + " Postcode: " + PC);
+                    Console.WriteLine("Verified: " + VE + " UPRN: " + UP);
+                    // Enumerate over the different addresses
+                    try
+                    {
+                        while (Lines.MoveNext())
+                        {
+                            string name = ((string)Lines.Current)?.ToString() ?? ""; 
+                            Console.WriteLine(name);
+                        }
+                    }
+                    finally
+                    {
+                        Lines.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                Address.Dispose();
+            }
+
+            // First find out if we already have the citizen
+            // We need to search the database to find out if we have a match
+
+
+            return new { result = "nomatch" , hashcode = HashPid  };
+
+        }
+
+
+        public dynamic GetSafe( dynamic value )
+        {
+            dynamic FNto;
+            try
+            {
+                FNto = value;
+            }
+            catch
+            {
+                FNto = "";
+            }
+            return FNto;
+        }
+
+        // GET api/values
+        [HttpPost("create")]
+        public dynamic Post([FromBody] AccountCreation value)
+        {
+            // Find out what the cycle3 matching values are
+            var Pid = value.Pid?.ToString() ?? "";
+            var LOA = value.LevelOfAssurance?.ToString() ?? "";
+
+            Console.WriteLine("PiD: " + Pid);
+            Console.WriteLine("Level of Assurance: " + LOA);
+
+            // If this is NULL then no address would be searched.
+            var Address = value.Attributes.Address;
+
+            // Enumerate over the different addresses
+            var IPC = Address.Value.InternationalPostCode?.ToString() ?? "";
+            var FD = Address.Value.FromDate?.ToString() ?? "";
+            var TD = Address.Value.ToDate?.ToString() ?? "";
+            var PC = Address.Value.PostCode?.ToString() ?? "";
+            var UP = Address.Value.Uprn?.ToString() ?? "";
+
+            var Lines = Address.Value.Lines.GetEnumerator();
+
+            Console.WriteLine("From: " + FD + " To: " + TD);
+            Console.WriteLine("INT: " + IPC + " Postcode: " + PC);
+            Console.WriteLine( " UPRN: " + UP);
+            // Enumerate over the different addresses
+            try
+            {
+                while (Lines.MoveNext())
+                {
+                    string name = ((string)Lines.Current)?.ToString() ?? "";
+                    Console.WriteLine(name);
+                }
+            }
+            finally
+            {
+                Lines.Dispose();
+            }
+
+
+            // We need to ensure that we log what we are doing into the database
+            var testDB = new DB_Worker();
+
+            testDB.Go("MariaDB ODBC 3.0 Driver");
+
+            return "Nothing";
+        }
+
+        // GET api/values
+        [HttpPost("create2")]
+        public dynamic Post([FromBody] CreateAccount value)
+        {
+            // Find out what the PID and LoA values are
+            var Pid = value.Pid?.ToString() ?? "";
+            var LOA = value.LevelOfAssurance?.ToString() ?? "";
+            var Username = value.Username?.ToString() ?? "";
+            var Password = value.Password?.ToString() ?? "";
+
+            Console.WriteLine("PiD: " + Pid);
+            Console.WriteLine("Level of Assurance: " + LOA);
+            Console.WriteLine("UN: " + Username );
+            Console.WriteLine("PW: " + Password );
+
+            // We need to pull out the Firstname, Surname, and DoB, all of these have optional
+            // properties
+
+            // FIRST NAME
+            var FN = GetSafe( value.FirstName.Value );
+            var FNverified = GetSafe(value.FirstName.Verified );
+            var FNto = GetSafe( value.FirstName.ToDate );
+
+/*            var FNverified = value.FirstName.Verified; // bool
+            var FNto = "";
+            try {
+                FNto = value.FirstName.ToDate?.ToString() ?? "";
+            } catch {
+                FNto = "";
+            }*/
+            var FNfrom = "";
+            try
+            {
+                FNfrom = value.FirstName.FromDate?.ToString() ?? "";
+            }
+            catch
+            {
+                FNfrom = "";
+            }
+            Console.WriteLine("Firstname: " + FN + " Verified: " + FNverified);
+            Console.WriteLine("From: " + FNfrom + " To: " + FNto);
+
+
+            // SURNAME LIST
+            var Surnames = value.Surnames.GetEnumerator();
+
+            // Enumerate over the different surnames
+            try
+            {
+                var cnt=0;
+                while (Surnames.MoveNext())
+                {
+                    cnt++;
+
+                    var SN = Surnames.Current.Value?.ToString() ?? "";
+                    var SNverified = Surnames.Current.Verified; // bool
+                    var SNto = "";
+                    try
+                    {
+                        SNto = Surnames.Current.ToDate?.ToString() ?? "";
+                    }
+                    catch
+                    {
+                        SNto = "";
+                    }
+                    var SNfrom = "";
+                    try
+                    {
+                        SNfrom = Surnames.Current.FromDate?.ToString() ?? "";
+                    }
+                    catch
+                    {
+                        SNfrom = "";
+                    }
+
+                    Console.WriteLine("------------------------- "+cnt);
+                    Console.WriteLine("Surname: " + SN + " Verified: " + SNverified);
+                    Console.WriteLine("From: " + SNfrom + " To: " + SNto);
+                }
+            }
+            finally
+            {
+                Surnames.Dispose();
+            }
+
+            // Date of Birth
+            var DB = value.DateOfBirth.Value?.ToString() ?? "";
+            var DBverified = value.DateOfBirth.Verified; // bool
+            var DBto = "";
+            try
+            {
+                DBto = value.DateOfBirth.ToDate?.ToString() ?? "";
+            }
+            catch
+            {
+                DBto = "";
+            }
+            var DBfrom = "";
+            try
+            {
+                DBfrom = value.DateOfBirth.FromDate?.ToString() ?? "";
+            }
+            catch
+            {
+                DBfrom = "";
+            }
+            Console.WriteLine("DateOfBirth: " + DB + " Verified: " + DBverified);
+            Console.WriteLine("From: " + DBfrom + " To: " + DBto);
+
+            // If this is NULL then no address would be searched.
+            var Address = value.Address;
+            var Lines = Address.Lines.GetEnumerator();
+            // Enumerate over the different addresses
+            var PC = Address.PostCode?.ToString() ?? "";
+            var ADV = Address.Verified; // boolean
+
+            // Enumerate over the different addresses
+            try
+            {
+                while (Lines.MoveNext())
+                {
+                    string name = ((string)Lines.Current)?.ToString() ?? "";
+                    Console.WriteLine(name);
+                }
+            }
+            finally
+            {
+                Lines.Dispose();
+            }
+
+
+            // We need to ensure that we log what we are doing into the database
+//           var testDB = new DB_Worker();
+//            testDB.Go("MariaDB ODBC 3.0 Driver");
+
+            return "Nothing";
+        }
+    }
+}
+
+
+        /* 
+                // GET api/values
+                [HttpPost("create2")]
+                public dynamic Post([FromBody] AccountCreation value)
+                {
+                    // Find out what the cycle3 matching values are
+                    var Pid = GetSafe( value.Pid );
+                    var LOA = GetSafe( value.LevelOfAssurance );
+
+                    Console.WriteLine("PiD: " + Pid);
+                    Console.WriteLine("Level of Assurance: " + LOA);
+
+                    // FIRST NAME
+                    var FN = GetSafe(value.Attributes.FirstName.Value);
+                    var FNverified = GetSafe(value.Attributes.FirstName.Verified);
+                    var FNto = GetSafe(value.Attributes.FirstName.ToDate);
+                    var FNfrom = GetSafe(value.Attributes.FirstName.FromDate);
+
+                    Console.WriteLine("------------------------- Firstname");
+                    Console.WriteLine("Firstname: " + FN + " Verified: " + FNverified);
+                    Console.WriteLine("From: " + FNfrom + " To: " + FNto);
+
+                    // Midle NAME
+                    var MN = GetSafe(value.Attributes.MiddleName.Value);
+                    var MNverified = GetSafe(value.Attributes.MiddleName.Verified);
+                    var MNto = GetSafe(value.Attributes.MiddleName.ToDate);
+                    var MNfrom = GetSafe(value.Attributes.MiddleName.FromDate);
+
+                    Console.WriteLine("------------------------- MiddleName");
+                    Console.WriteLine("MiddleName: " + MN + " Verified: " + MNverified);
+                    Console.WriteLine("From: " + MNfrom + " To: " + MNto);
+
+                    // Surname
+                    var SN = GetSafe(value.Attributes.Surname.Value);
+                    var SNverified = GetSafe(value.Attributes.Surname.Verified);
+                    var SNto = GetSafe(value.Attributes.Surname.ToDate);
+                    var SNfrom = GetSafe(value.Attributes.Surname.FromDate);
+
+                    Console.WriteLine("------------------------- Surname");
+                    Console.WriteLine("Surname: " + SN + " Verified: " + SNverified);
+                    Console.WriteLine("From: " + SNfrom + " To: " + SNto);
+
+                    // If this is NULL then no address would be searched.
+                    var Address = GetSafe( value.Attributes.Address );
+
+                    // Enumerate over the different addresses
+                    var IPC = GetSafe( Address.Value.InternationalPostCode );
+                    var FD = GetSafe( Address.Value.FromDate );
+                    var TD = GetSafe( Address.Value.ToDate );
+                    var PC = GetSafe( Address.Value.PostCode );
+                    var UP = GetSafe( Address.Value.Uprn );
+                    var VE = GetSafe( Address.Verified );
+
+                    Console.WriteLine("------------------------- Address");
+                    Console.WriteLine("From: " + FD + " To: " + TD);
+                    Console.WriteLine("INT: " + IPC + " Postcode: " + PC);
+                    Console.WriteLine(" UPRN: " + UP + " Verified: "+VE );
+
+                    try
+                    {
+                        var Lines = Address.Value.Lines.GetEnumerator();
+
+                        // Enumerate over the different addresses
+                        try
+                        {
+                            var cnt=1;
+                            while (Lines.MoveNext())
+                            {
+                                string name = GetSafe( Lines.Current );
+                                Console.WriteLine(cnt+": "+name);
+                                cnt++;
+                            }
+                        }
+                        finally
+                        {
+                            Lines.Dispose();
+                        }
+                    }
+                    catch
+                    {
+                        // No Address Enumerator
+                    }
+
+                    // Address History
+                    var AddressHistory = GetSafe(value.Attributes.AddressHistory);
+                    try
+                    {
+                        var AddressList = AddressHistory.GetEnumerator();
+
+                        // Enumerate over the different addresses
+                        try
+                        {
+                            var cnt = 1;
+                            while (AddressList.MoveNext())
+                            {
+                                var ALFD = GetSafe(AddressList.Current.Value.FromDate);
+                                var ALTD = GetSafe(AddressList.Current.Value.ToDate);
+                                var ALVer = GetSafe(AddressList.Current.Verified);
+                                var ALUPRN = GetSafe(AddressList.Current.Value.Uprn);
+                                var ALIPC = GetSafe(AddressList.Current.Value.InternationalPostCode);
+                                var ALPC = GetSafe(AddressList.Current.Value.PostCode);
+
+                                Console.WriteLine("------------------------- "+cnt+" Address History");
+                                Console.WriteLine("From: " + ALFD + " To: " + TD);
+                                Console.WriteLine("INT: " + ALIPC + " Postcode: " + ALPC);
+                                Console.WriteLine(" UPRN: " + ALUPRN + " Verified: " + ALVer);
+
+                                cnt++;
+
+                                var Lines = AddressList.Current.Value.Lines.GetEnumerator();
+
+                                // Enumerate over the different addresses
+                                try
+                                {
+                                    var cnt2 = 1;
+                                    while (Lines.MoveNext())
+                                    {
+                                        string name = GetSafe(Lines.Current);
+                                        Console.WriteLine(cnt2 + ": " + name);
+                                        cnt2++;
+                                    }
+                                }
+                                finally
+                                {
+                                    Lines.Dispose();
+                                }
+
+                            }
+                        }
+                        finally
+                        {
+                            AddressList.Dispose();
+                        }
+                    }
+                    catch
+                    {
+                        // No Address Enumerator
+                    }
+
+                    // We need to ensure that we log what we are doing into the database
+                    //var testDB = new DB_Worker();
+                    //testDB.Go("MariaDB ODBC 3.0 Driver");
+
+                    return "Nothing";
+                }
+
+                */

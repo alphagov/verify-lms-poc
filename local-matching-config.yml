@@ -1,0 +1,92 @@
+# ------------------------
+#
+# Local Matching Config
+#
+# ------------------------
+# Date:   6/12/2017
+
+# ------------------------
+# Validation Settings
+# ------------------------
+
+ID:       "local-matching-config"
+Version:  0.1
+
+# ------------------------
+# Local Database Settings
+# ------------------------
+# The local database is known to the code, so it's structure is predefined by the LMS API
+
+#LODBC:     "MariaDB ODBC 3.0 Driver"
+#LSERVER:   "127.0.0.1"
+#LDB:       "Database=LMS-local"
+#LDBUN:     "root"
+#LDBPW:     "mypass"
+LODBC:     "Microsoft Access Driver (*.mdb, *.accdb)"
+LSERVER:   "127.0.0.1"
+LDB:       "Dbq=C:\\Users\\humph\\Dropbox\\GDS\\demo-LMS.accdb"
+LDBUN:     "Admin"
+LDBPW:     ""
+
+# ------------------------
+# Remote Database Settings
+# ------------------------
+# Remote databases can be varied in the arrangement, we will try to map our "known" local to
+# unknown structure of the remote database.
+           
+RODBC:     "Microsoft Access Driver (*.mdb, *.accdb)"
+RSERVER:   "127.0.0.1"
+RDB:       "Dbq=C:\\Users\\humph\\Dropbox\\GDS\\demo-LMS.accdb"
+RDBUN:     "Admin"
+RDBPW:     ""
+
+# -------------------
+# Alternative approach
+# -------------------
+#
+# Pre-build the queries to return back sets of data
+# The question is do, you bring back a single set,
+# or keep pulling elements back that only unify the
+# different groups together.
+#
+# #SOMETHING# will be substitued with what ever is 
+# passed, for example, SURNAME, DOB, POSTCODE etc.
+#
+# We always do a like for strings, this is because
+# we may choose to truncate them, for example
+# to bring back as many as we can from a set
+# of data.
+#
+#
+LMatching:
+    -   Name:   "PiD"
+        Query:  "SELECT DISTINCT Id,PiD
+                 FROM Matches
+                 WHERE PiD = '#PID#'"
+
+LCreate:
+    -   Name:   "PiD"
+        Query:  "INSERT INTO Matches (PiD,TimeS) Values ( '#PID#' , NOW() )"
+
+RMatching:
+    -   Name:   "Surname"
+        Query:  "SELECT DISTINCT a.Id,b.Surname,b.Verified,b.FromDate,b.ToDate
+                FROM Account a
+                LEFT JOIN Surname b ON a.Id = b.IdRef 
+                WHERE UCASE(b.Surname) LIKE LEFT(UCASE('#SURNAME#') , 1 )+'%'"
+                # Notice above, we are actually defining how we do the remote search, 
+                # using only the first character. Better do it in config, rather than
+                # code modification
+
+    -   Name:   "DoB"
+        Query:  "SELECT DISTINCT a.ID,a.DoB,a.DoBVerified
+                 FROM Account a
+                 WHERE  DATEDIFF('d',a.DoB,'#DOB#')=0"
+
+    -   Name:   "Postcode"
+        Query:  "SELECT DISTINCT a.ID,b.Postcode,b.InternationalPostcode,b.Verified,b.FromDate,b.ToDate
+                 FROM Account a
+                 LEFT JOIN Address b on a.Id = b.IdLink
+                 WHERE b.Postcode LIKE '#POSTCODE#'
+                 OR    b.InternationalPostcode LIKE '#POSTCODE#'"
+
