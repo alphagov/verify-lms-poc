@@ -32,15 +32,40 @@ namespace local_matching.SingleSearch
                         "MATCHINGCOUNT" + yamlc.GetRM("SEARCH" + i).ToUpper(),
                             yamlc.GetRM("SEARCH" + i).ToUpper().Substring(0, 3),
                                 Convert.ToInt32(yamlc.GetRM("WEIGHT" + i)));
+
+                // If you want to do any specific modificatios to the weights so enhance the best match (or reduce one)
+                // then you need to put the code here.
+                // eg.
+                switch (yamlc.GetRM("SEARCH" + i).ToUpper())
+                {
+                    case "SURNAME":
+                        // Call_Surname_SoundEx( ref Counters, ref MyDBList );
+                        break;
+                    case "DOB":
+                        // We may have decided to just use year of birth
+                        break;
+                    case "INTERNATIONALPOSTCODE":
+                        // maybe we have a special postcode reader to work out area
+                        break;
+                    case "POSTCODE":
+                        // maybe we have a special postcode reader to work out area
+                        break;
+                    case "ADDRESS1":
+                    case "ADDRESS2":
+                    case "ADDRESS3":
+                    case "ADDRESS4":
+                    case "ADDRESS5":
+                    case "ADDRESS6":
+                    case "ADDRESS7":
+                    case "ADDRESS8":
+                        // All the address ones come here, we may increase scoreds (any can be done) or add a new score
+                        // by doing address searches. E.g. +10 points for a matching line, +3 points for them being consecutive
+                        break;
+                    default:
+                        // anything else it comes here
+                        break;
+                }
             }
-
-            // This hand coded example lines are left in, this allows us to actually be used so that
-            // each of the search results could be queried, and reduced in a far smarter way that
-            // we are currently doing.
-
-            // ExpandAndCount( ref PRET, ref Counters, ref Surnames, "MATCHINGCOUNTSURNAME","SUR");
-            // ExpandAndCount(ref PRET, ref Counters, ref DoB, "MATCHINGCOUNTDOB", "DOB");
-            // ExpandAndCount(ref PRET, ref Counters, ref Postcode, "MATCHINGCOUNTPOSTCODE", "POS");
 
             // Find out which of the ID's is there the most
             int cntr_i = 0;
@@ -52,6 +77,8 @@ namespace local_matching.SingleSearch
                 if (entry.Value > cntr_max) { cntr_i = entry.Key; cntr_same = 0; cntr_max = entry.Value; }
             }
 
+            // If we have more than one identity with the same number of maximum scores, then we can't decide between them and so we
+            // must state that we don't know who the person is. (very likely a duplicate account in the remote database)
             if (cntr_same > 0)
             {
                 PRET.Add("NOBESTCANDIDATE", "Total of " + (cntr_same + 1).ToString() + " same score.");
@@ -84,4 +111,12 @@ namespace local_matching.SingleSearch
         }
     }
 }
+
+// This hand coded example lines are left in, this allows us to actually be used so that
+// each of the search results could be queried, and reduced in a far smarter way that
+// we are currently doing.
+
+// ExpandAndCount( ref PRET, ref Counters, ref Surnames, "MATCHINGCOUNTSURNAME","SUR");
+// ExpandAndCount(ref PRET, ref Counters, ref DoB, "MATCHINGCOUNTDOB", "DOB");
+// ExpandAndCount(ref PRET, ref Counters, ref Postcode, "MATCHINGCOUNTPOSTCODE", "POS");
 

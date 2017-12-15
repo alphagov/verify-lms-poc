@@ -115,6 +115,7 @@ namespace local_matching.CreateAccount
 
                 if (string.IsNullOrEmpty(PCto)) // ToDate couild be blank, meaning they are still there
                 {
+                    PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address.InternationalPostCode));
                     PRET.Add("POSTCODE", GetSafe(Address.PostCode));
                     PRET.Add("POSTCODEVER", GetSafe(Address.Verified).ToString());
                     PRET.Add("POSTCODEFROM", GetSafe(Address.FromDate));
@@ -125,6 +126,7 @@ namespace local_matching.CreateAccount
                     dtTD = Convert.ToDateTime(PCto);
                     if (DateTime.Compare(dtTD, dtNow) >= 0)
                     {
+                        PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address.InternationalPostCode));
                         PRET.Add("POSTCODE", GetSafe(Address.PostCode));
                         PRET.Add("POSTCODEVER", GetSafe(Address.Verified).ToString());
                         PRET.Add("POSTCODEFROM", GetSafe(Address.FromDate));
