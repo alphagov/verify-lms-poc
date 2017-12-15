@@ -63,7 +63,7 @@ namespace local_matching.Controllers
             singleSearch strategy = new singleSearch();
 
             // Return the match or nomatch result
-            strategy.Process( ref PRET );
+            strategy.Process( ref yamlc, ref PRET );
 
             return PRET;
         }

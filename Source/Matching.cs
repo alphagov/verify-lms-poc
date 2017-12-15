@@ -214,19 +214,19 @@ namespace local_matching.Matching
                                         yamlc.GetRS("RDBUN"),
                                         yamlc.GetRS("RDBPW"));
 
-            string[] post = new string[] { };
-            ReadDB(ref PRET, ref yamlc, ref testDB, ref post, "POSTCODE", "Postcode");
+            // Lets get the search count
+            int cnt = Convert.ToInt32( yamlc.GetRM("SEARCHCOUNT") );
 
-            string[] dob = new string[] { };
-            ReadDB(ref PRET, ref yamlc, ref testDB, ref dob, "DOB", "DoB");
-
-            string[] sur = new string[] { };
-            ReadDB(ref PRET, ref yamlc, ref testDB, ref sur, "SURNAME", "Surname");
+            for (int i=1;i<=cnt;i++)
+            {
+                string[] post = new string[] { };
+                QueryRemoteDB(ref PRET, ref yamlc, ref testDB, ref post, yamlc.GetRM("SEARCH" + i).ToUpper(), yamlc.GetRM("SEARCH" + i));
+            }
         }
 
         // This function is a helper which will read the database, and add any results onto the PRET dictionary.
         // It will automatically do the substitution
-        public void ReadDB( ref Dictionary<string,string>PRET, ref YAML_Config yamlc, ref DB_Worker testDB, ref string[] post , string PR, string Y)
+        public void QueryRemoteDB( ref Dictionary<string,string>PRET, ref YAML_Config yamlc, ref DB_Worker testDB, ref string[] post , string PR, string Y)
         {
             if (!string.IsNullOrEmpty(PRET.GetValueOrDefault(PR)))
             {

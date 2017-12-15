@@ -72,12 +72,16 @@ namespace local_matching.YAMLC
 
             // List all the tables relationship
             var items2 = (YamlSequenceNode)mapping.Children[new YamlScalarNode("RMatching")];
+            int cnt=0;
             foreach (YamlMappingNode item in items2)
             {
                 this.SetRM(item.Children[new YamlScalarNode("Name")].ToString(),
                                 item.Children[new YamlScalarNode("Query")].ToString());
+                cnt++;
+                this.SetRM("SEARCH"+cnt,item.Children[new YamlScalarNode("Name")].ToString());
             }
-
+            this.SetRM("SEARCHCOUNT", cnt.ToString() );
+            
             input.Dispose();
 
         }
