@@ -24,7 +24,7 @@ Version:  0.1
 #LDBPW:     "mypass"
 LODBC:     "Microsoft Access Driver (*.mdb, *.accdb)"
 LSERVER:   "127.0.0.1"
-LDB:       "Dbq=C:\\Users\\humph\\Dropbox\\GDS\\demo-LMS.accdb"
+LDB:       "Dbq=.\\demo-LMS.accdb"
 LDBUN:     "Admin"
 LDBPW:     ""
 
@@ -36,7 +36,7 @@ LDBPW:     ""
            
 RODBC:     "Microsoft Access Driver (*.mdb, *.accdb)"
 RSERVER:   "127.0.0.1"
-RDB:       "Dbq=C:\\Users\\humph\\Dropbox\\GDS\\demo-LMS.accdb"
+RDB:       "Dbq=.\\demo-LMS.accdb"
 RDBUN:     "Admin"
 RDBPW:     ""
 
