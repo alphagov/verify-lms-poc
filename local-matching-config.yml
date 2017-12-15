@@ -83,6 +83,7 @@ RMatching:
                 # using only the first character. Better do it in config, rather than
                 # code modification
     -   Name:   "Surname"
+        Weight: 10
         Query:  "SELECT DISTINCT a.Id,b.Surname,b.Verified,b.FromDate,b.ToDate
                 FROM Account a
                 LEFT JOIN Surname b ON a.Id = b.IdRef 
@@ -92,6 +93,7 @@ RMatching:
                 # in days to be zero, but we could also search for the same day, same month, 
                 # same year and combine the results
     -   Name:   "DoB"
+        Weight: 10
         Query:  "SELECT DISTINCT a.ID,a.DoB,a.DoBVerified
                  FROM Account a
                  WHERE  DATEDIFF('d',a.DoB,'#DOB#')=0"
@@ -100,6 +102,7 @@ RMatching:
                 # but we could also try and pull back for areas, or sub-areas using just the first
                 # letters and the numbers that make it up
     -   Name:   "Postcode"
+        Weight: 10
         Query:  "SELECT DISTINCT a.ID,b.Postcode,b.InternationalPostcode,b.Verified,b.FromDate,b.ToDate
                  FROM Account a
                  LEFT JOIN Address b on a.Id = b.IdLink
@@ -109,8 +112,8 @@ RMatching:
                  # in the above SQL statement, but this is demonstrating that you can keep adding new queries
                  # to access anything you want in the remote database to return it.
     -   Name:   "InternationalPostcode"
+        Weight: 1
         Query:  "SELECT DISTINCT a.ID,b.Postcode,b.InternationalPostcode,b.Verified,b.FromDate,b.ToDate
                  FROM Account a
                  LEFT JOIN Address b on a.Id = b.IdLink
                  WHERE b.InternationalPostcode LIKE '#INTERNATIONALPOSTCODE#'"
-                 

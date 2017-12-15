@@ -14,7 +14,7 @@ namespace local_matching.SingleSearch
         {
             // OK there are various ways to be "clever" and come up with the right answer
             // Lets not for the moment, lets just see which ID has the most entries
-            Dictionary<int,int> Counters = new Dictionary<int,int> { };
+            Dictionary<int, int> Counters = new Dictionary<int, int> { };
 
             // These will also count to see what number of each account are
             // going to be coming back.
@@ -28,7 +28,10 @@ namespace local_matching.SingleSearch
             for (int i = 1; i <= cnt; i++)
             {
                 List<string[]> MyDBList = new List<string[]> { };
-                ExpandAndCount(ref PRET, ref Counters, ref MyDBList , "MATCHINGCOUNT"+yamlc.GetRM("SEARCH" + i).ToUpper(), yamlc.GetRM("SEARCH" + i).ToUpper().Substring(0,3));
+                ExpandAndCount(ref PRET, ref Counters, ref MyDBList,
+                        "MATCHINGCOUNT" + yamlc.GetRM("SEARCH" + i).ToUpper(),
+                            yamlc.GetRM("SEARCH" + i).ToUpper().Substring(0, 3),
+                                Convert.ToInt32(yamlc.GetRM("WEIGHT" + i)));
             }
 
             // This hand coded example lines are left in, this allows us to actually be used so that
@@ -40,29 +43,29 @@ namespace local_matching.SingleSearch
             // ExpandAndCount(ref PRET, ref Counters, ref Postcode, "MATCHINGCOUNTPOSTCODE", "POS");
 
             // Find out which of the ID's is there the most
-            int cntr_i=0;
-            int cntr_max=0;
-            int cntr_same=0;
+            int cntr_i = 0;
+            int cntr_max = 0;
+            int cntr_same = 0;
             foreach (KeyValuePair<int, int> entry in Counters)
             {
                 if (entry.Value == cntr_max) { cntr_same++; }
-                if (entry.Value > cntr_max) { cntr_i = entry.Key; cntr_same=0; cntr_max = entry.Value; }
+                if (entry.Value > cntr_max) { cntr_i = entry.Key; cntr_same = 0; cntr_max = entry.Value; }
             }
 
-            if (cntr_same>0)
+            if (cntr_same > 0)
             {
-                PRET.Add("NOBESTCANDIDATE","Total of " + (cntr_same+1).ToString() + " same score.");
+                PRET.Add("NOBESTCANDIDATE", "Total of " + (cntr_same + 1).ToString() + " same score.");
             }
             else
             {
-                PRET.Add("BESTCANDIDATE",cntr_i.ToString()+" which got "+cntr_max.ToString()+" hits.");
+                PRET.Add("BESTCANDIDATE", cntr_i.ToString() + " which got " + cntr_max.ToString() + " hits.");
             }
-       }
+        }
 
-       // This function will iterate through the Dictionary, pulling out each database line, extract
-       // out each of its fields, then it also counts the number of times the primary account ID's are
-       // Hit. (these are always index 1)
-        public void ExpandAndCount( ref Dictionary<string,string> PRET , ref Dictionary<int,int> Counters , ref List<string[]> TheDBList, string count, string prefix)
+        // This function will iterate through the Dictionary, pulling out each database line, extract
+        // out each of its fields, then it also counts the number of times the primary account ID's are
+        // Hit. (these are always index 1)
+        public void ExpandAndCount(ref Dictionary<string, string> PRET, ref Dictionary<int, int> Counters, ref List<string[]> TheDBList, string count, string prefix, int weight)
         {
             int icnt = Convert.ToInt32(PRET.GetValueOrDefault(count));
             for (int i = 0; i < icnt; i++)
@@ -70,12 +73,12 @@ namespace local_matching.SingleSearch
                 TheDBList.Add(PRET.GetValueOrDefault(prefix + (i + 1).ToString()).Split("|"));
                 try
                 {
-                    Counters[Convert.ToInt32(TheDBList[i].GetValue(1))]++;
+                    Counters[Convert.ToInt32(TheDBList[i].GetValue(1))] += weight;
 
                 }
                 catch
                 {
-                    Counters.Add(Convert.ToInt32(TheDBList[i].GetValue(1)), 1);
+                    Counters.Add(Convert.ToInt32(TheDBList[i].GetValue(1)), weight);
                 }
             }
         }

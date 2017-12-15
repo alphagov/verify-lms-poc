@@ -78,7 +78,8 @@ namespace local_matching.YAMLC
                 this.SetRM(item.Children[new YamlScalarNode("Name")].ToString(),
                                 item.Children[new YamlScalarNode("Query")].ToString());
                 cnt++;
-                this.SetRM("SEARCH"+cnt,item.Children[new YamlScalarNode("Name")].ToString());
+                this.SetRM("SEARCH" + cnt, item.Children[new YamlScalarNode("Name")].ToString());
+                this.SetRM("WEIGHT" + cnt, item.Children[new YamlScalarNode("Weight")].ToString());
             }
             this.SetRM("SEARCHCOUNT", cnt.ToString() );
             
