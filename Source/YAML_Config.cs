@@ -4,7 +4,34 @@ using System.Collections.Generic;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.RepresentationModel;
+/*
 
+//##########################################################################################
+// YAML Configuration
+//##########################################################################################
+
+This currently only handles a single "replacable" value in each of the sections, however this
+can be simply advanced in two ways.
+
+1.  The need to support multiple parameters, e.g. "Extend" the current "Name" to allow us to
+    specify secondary terms to be replaced within the "Query".
+
+2.  Allow for #NAME?# where the ? is a driver for the multiple lines reponses we get, for 
+    example address lines. Here if we specify that type of term an additional type of check
+    will occur on the data. This will dynamically map across, to try different combinations
+    and handle missing lines.
+
+            e.g.
+
+                    1 -->  2
+                    2 -->  5
+                    5 -->  4
+
+            We also give a small advantage if they are in the correct order as well as
+            getting a match. So above will get an advatage score for the 1, 2, but not
+            for the 5->4 match.
+
+ */
 namespace local_matching.YAMLC
 {
     public class YAML_Config
@@ -41,44 +68,54 @@ namespace local_matching.YAMLC
             // Examine the stream
             var mapping = (YamlMappingNode)yaml.Documents[0].RootNode;
 
-            this.SetLS("LODBC", mapping.Children[new YamlScalarNode("LODBC")].ToString());
-            this.SetLS("LSERVER", mapping.Children[new YamlScalarNode("LSERVER")].ToString());
-            this.SetLS("LDB", mapping.Children[new YamlScalarNode("LDB")].ToString());
-            this.SetLS("LDBUN", mapping.Children[new YamlScalarNode("LDBUN")].ToString());
-            this.SetLS("LDBPW", mapping.Children[new YamlScalarNode("LDBPW")].ToString());
+            string[] listLS = new string[] {"ODBC","SERVER","DB","DBUN","DBPW"};
+            foreach (string item in listLS)
+            {
+                this.SetLS("L" + item, mapping.Children[new YamlScalarNode("L" + item)].ToString());
+                this.SetRS("R" + item, mapping.Children[new YamlScalarNode("R" + item)].ToString());
+            }
 
-            this.SetRS("RODBC", mapping.Children[new YamlScalarNode("RODBC")].ToString());
-            this.SetRS("RSERVER", mapping.Children[new YamlScalarNode("RSERVER")].ToString());
-            this.SetRS("RDB", mapping.Children[new YamlScalarNode("RDB")].ToString());
-            this.SetRS("RDBUN", mapping.Children[new YamlScalarNode("RDBUN")].ToString());
-            this.SetRS("RDBPW", mapping.Children[new YamlScalarNode("RDBPW")].ToString());
-
+            int cnt = 0;
 
             // List all the Local Creates
             var items0 = (YamlSequenceNode)mapping.Children[new YamlScalarNode("LCreate")];
             foreach (YamlMappingNode item in items0)
             {
+                cnt++;
                 this.SetLC(item.Children[new YamlScalarNode("Name")].ToString(),
                                 item.Children[new YamlScalarNode("Query")].ToString());
+                this.SetLC("SEARCH" + cnt, item.Children[new YamlScalarNode("Name")].ToString());
             }
 
-            // List all the tables relationship
+            // List all the Local Matching
             var items1 = (YamlSequenceNode)mapping.Children[new YamlScalarNode("LMatching")];
+            cnt=0;
             foreach (YamlMappingNode item in items1)
             {
+                cnt++;
                 this.SetLM(item.Children[new YamlScalarNode("Name")].ToString(),
                                 item.Children[new YamlScalarNode("Query")].ToString());
+                this.SetLM("SEARCH" + cnt, item.Children[new YamlScalarNode("Name")].ToString());
             }
 
-            // List all the tables relationship
+            // List all the Remote Matching
             var items2 = (YamlSequenceNode)mapping.Children[new YamlScalarNode("RMatching")];
-            int cnt=0;
+            cnt = 0;
             foreach (YamlMappingNode item in items2)
             {
+                cnt++;
                 this.SetRM(item.Children[new YamlScalarNode("Name")].ToString(),
                                 item.Children[new YamlScalarNode("Query")].ToString());
-                cnt++;
-                this.SetRM("SEARCH" + cnt, item.Children[new YamlScalarNode("Name")].ToString());
+
+                // Remote matches can have complex names now, so we need to make sure we have the first one
+                string name = item.Children[new YamlScalarNode("Name")].ToString();
+/*                if (name.Substring(0,1)=="[")
+                {
+                    string[] sn = name.Substring(2, name.Length - 4).Replace(" ", "").Split(",");
+                    name = sn[0];
+                }
+*/
+                this.SetRM("SEARCH" + cnt, name );
                 this.SetRM("WEIGHT" + cnt, item.Children[new YamlScalarNode("Weight")].ToString());
             }
             this.SetRM("SEARCHCOUNT", cnt.ToString() );

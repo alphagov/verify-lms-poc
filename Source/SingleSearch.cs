@@ -28,18 +28,27 @@ namespace local_matching.SingleSearch
             for (int i = 1; i <= cnt; i++)
             {
                 List<string[]> MyDBList = new List<string[]> { };
+
+                // Make multi-part searches use the first term only
+                string name = yamlc.GetRM("SEARCH" + i).ToUpper();
+                if (name.Substring(0, 1) == "[")
+                {
+                    string[] sn = name.Substring(2, name.Length - 4).Replace(" ", "").Split(",");
+                    name = sn[0];
+                }
+
                 ExpandAndCount(ref PRET, ref Counters, ref MyDBList,
-                        "MATCHINGCOUNT" + yamlc.GetRM("SEARCH" + i).ToUpper(),
-                            yamlc.GetRM("SEARCH" + i).ToUpper().Substring(0, 3),
+                        "MATCHINGCOUNT" + name,
+                              name.Substring(0, 3),
                                 Convert.ToInt32(yamlc.GetRM("WEIGHT" + i)));
 
                 // If you want to do any specific modificatios to the weights so enhance the best match (or reduce one)
                 // then you need to put the code here.
                 // eg.
-                switch (yamlc.GetRM("SEARCH" + i).ToUpper())
+                switch (name)
                 {
                     case "SURNAME":
-                        // Call_Surname_SoundEx( ref Counters, ref MyDBList );
+                        // Call_Surname_SoundEx( ref PRET, ref Counters, ref MyDBList );
                         break;
                     case "DOB":
                         // We may have decided to just use year of birth

@@ -4,6 +4,13 @@
 #
 # ------------------------
 # Date:   6/12/2017
+#
+# TODO:   1. Need to list all of the accepted Config NAMES
+#         2. Extend to allow for additonal replacement terms
+#         3. Support lines (e.g. addresses) with the #ADDRESS?# <-- ? on the end
+#         4. Support "ordered-bonnus" if lines (3) are in sequence
+#         5. Add support for "DEBUG" settings in this YAML file
+#
 
 # ------------------------
 # Validation Settings
@@ -23,13 +30,6 @@ LDB:       "Dbq=.\\demo-LMS.accdb"
 LDBUN:     "Admin"
 LDBPW:     ""
 
-#----------------------- This has been left in as an example of MariaDB conenctor
-                #LODBC:     "MariaDB ODBC 3.0 Driver"
-                #LSERVER:   "127.0.0.1"
-                #LDB:       "Database=LMS-local"
-                #LDBUN:     "root"
-                #LDBPW:     "mypass"
-
 # ------------------------
 # Remote Database Settings
 # ------------------------
@@ -42,6 +42,13 @@ RDB:       "Dbq=.\\demo-LMS.accdb"
 RDBUN:     "Admin"
 RDBPW:     ""
 
+#----------------------- This has been left in as an example of MariaDB conenctor
+                #LODBC:     "MariaDB ODBC 3.0 Driver"
+                #LSERVER:   "127.0.0.1"
+                #LDB:       "Database=LMS-local"
+                #LDBUN:     "root"
+                #LDBPW:     "mypass"
+
 # ------------------------------------------------------------------------------------------------
 # The following sections use substitution and label matching, to make this work, you must ensure
 # that the label you used for substitution is the same as the name. In addtion, it must be at least
@@ -49,6 +56,16 @@ RDBPW:     ""
 # The labels have the same name as they apprear in the JSON, so if those change, these must be also
 # changed otherwise it will not be able to match them up with each other.
 #
+
+# ------------------------
+# Local Create Settings
+# ------------------------
+# When we haven't been able to match, a new account is created, however all we do is
+# store the PID locally. When a future cycle 0 search comes in, it will use the LMatching
+# code above to try and find the record.
+LCreate:
+    -   Name:   "PiD" 
+        Query:  "INSERT INTO Matches (PiD,TimeS) Values ( '#PID#' , NOW() )"
 
 # ------------------------
 # Local Matching Settings
@@ -63,16 +80,6 @@ LMatching:
                  WHERE PiD = '#PID#'"
 
 # ------------------------
-# Local Create Settings
-# ------------------------
-# When we haven't been able to match, a new account is created, however all we do is
-# store the PID locally. When a future cycle 0 search comes in, it will use the LMatching
-# code above to try and find the record.
-LCreate:
-    -   Name:   "PiD"
-        Query:  "INSERT INTO Matches (PiD,TimeS) Values ( '#PID#' , NOW() )"
-
-# ------------------------
 # Remote Matching Settings
 # ------------------------
 # Matching names must be at least 3 characters, and those 3 characters cannot be duplicated
@@ -82,7 +89,7 @@ RMatching:
                 # Notice here we are actually defining how we do the remote search, 
                 # using only the first character. Better do it in config, rather than
                 # code modification
-    -   Name:   "Surname"
+    -   Name:   ["Surname","DoB"]
         Weight: 10
         Query:  "SELECT DISTINCT a.Id,b.Surname,b.Verified,b.FromDate,b.ToDate
                 FROM Account a

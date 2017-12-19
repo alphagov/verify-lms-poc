@@ -24,7 +24,7 @@ namespace local_matching.DBODBC
 
         public int Go(string queryString)
         {
-            int cnt = 0;
+             int cnt = 0;
 
             try
             {

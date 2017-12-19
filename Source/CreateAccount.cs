@@ -162,7 +162,7 @@ namespace local_matching.CreateAccount
                                         yamlc.GetLS("LDBUN"),
                                         yamlc.GetLS("LDBPW"));
 
-            string[] ret = testDB.Read(yamlc.GetLM("PiD").Replace("#PID#", PRET.GetValueOrDefault("PID")));
+            string[] ret = testDB.Read(yamlc.GetLM(yamlc.GetLM("SEARCH1")).Replace("#" + yamlc.GetLM("SEARCH1").ToUpper() + "#", PRET.GetValueOrDefault(yamlc.GetLM("SEARCH1").ToUpper())));
 
             if (ret.Count() > 0)
             {
@@ -170,7 +170,7 @@ namespace local_matching.CreateAccount
             }
             else
             {
-                testDB.Go(yamlc.GetLC("PiD").Replace("#PID#", PRET.GetValueOrDefault("PID")));
+                testDB.Go( yamlc.GetLC(yamlc.GetLC("SEARCH1")).Replace("#" + yamlc.GetLC("SEARCH1").ToUpper() + "#", PRET.GetValueOrDefault(yamlc.GetLC("SEARCH1").ToUpper())));
                 PRET.Add("INSERTING", "NewRecord");
             }
 

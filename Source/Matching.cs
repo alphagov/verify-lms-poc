@@ -198,7 +198,7 @@ namespace local_matching.Matching
                                         yamlc.GetLS("LDBPW"));
 
             // This is going to return a list of possible matches (should only be one)
-            string[] ret = testDB.Read(yamlc.GetLM("PiD").Replace("#PID#", MatchId));
+            string[] ret = testDB.Read(yamlc.GetLM( yamlc.GetLM("SEARCH1") ).Replace("#"+yamlc.GetLM("SEARCH1").ToUpper()+"#", MatchId));
             if (ret.Count() > 0)
             {
                 PRET.Add("MATCHING", ret[0]);
@@ -220,24 +220,54 @@ namespace local_matching.Matching
 
             for (int i=1;i<=cnt;i++)
             {
-                string[] post = new string[] { };
-                QueryRemoteDB(ref PRET, ref yamlc, ref testDB, ref post, yamlc.GetRM("SEARCH" + i).ToUpper(), yamlc.GetRM("SEARCH" + i));
+                string[] post = new string[] { };   // Although this gets populated, we don't actually do anything with it as it also populates PRET
+
+                string se = yamlc.GetRM("SEARCH" + i);
+
+                QueryRemoteDB(ref PRET, ref yamlc, ref testDB, ref post, se);
             }
         }
 
         // This function is a helper which will read the database, and add any results onto the PRET dictionary.
         // It will automatically do the substitution
-        public void QueryRemoteDB( ref Dictionary<string,string>PRET, ref YAML_Config yamlc, ref DB_Worker testDB, ref string[] post , string PR, string Y)
+        public void QueryRemoteDB( ref Dictionary<string,string>PRET, ref YAML_Config yamlc, ref DB_Worker testDB, ref string[] post , string Y)
         {
+            string[] sep = new string[]{};
+            int cnt = 1;
+            if (Y.Substring(0,1)=="[")
+            {
+                sep = Y.Substring(2,Y.Length-4).Replace(" ","").Split(",");
+                cnt = sep.Count();
+            } 
+            else
+            {
+                List<string> tmp = new List<string>{}; // This is a bit rubbish!
+                tmp.Add(Y);
+                sep = tmp.ToArray();                
+            }
+
+            string serstr = yamlc.GetRM( Y );
+            
+            for (int j=0;j<cnt;j++)
+            {
+                string upr = sep[j].ToUpper();
+                serstr = serstr.Replace("#" + upr + "#", PRET.GetValueOrDefault( upr ));
+#if DEBUG
+                Console.WriteLine(sep[j] + " - " + PRET.GetValueOrDefault(upr));
+#endif
+            }
+
+            string PR = sep[0].ToUpper();
+
             if (!string.IsNullOrEmpty(PRET.GetValueOrDefault(PR)))
             {
-    #if DEBUG
-                Console.WriteLine(Y+" - " + PRET.GetValueOrDefault(PR));
-    #endif
-                post = testDB.Read(yamlc.GetRM(Y).Replace("#"+PR+"#", PRET.GetValueOrDefault(PR)));
+                post = testDB.Read( serstr );//yamlc.GetRM(Y).Replace("#"+PR+"#", PRET.GetValueOrDefault(PR)));
             }
+
             PRET.Add("MATCHINGCOUNT"+PR, post.Count().ToString());
+            
             for (int i = 0; i < post.Count(); i++) { PRET.Add(PR.Substring(0,3) + (i + 1).ToString(), post[i]); }
+            
         }
 
         // This function allows us to read values from the JSON which may not exist
