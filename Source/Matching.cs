@@ -250,19 +250,31 @@ namespace local_matching.Matching
             
             for (int j=0;j<cnt;j++)
             {
-                string upr = sep[j].ToUpper();
-                serstr = serstr.Replace("#" + upr + "#", PRET.GetValueOrDefault( upr ));
+                if (sep[j].Substring(sep[j].Length-1) == "?")
+                {
+                    sep[j]=sep[j].Substring(0,sep[j].Length-1);
+                    for (int m=1;m<10;m++)
+                    {
+                        string upr = sep[j].ToUpper() + m.ToString();
+                        serstr = serstr.Replace("#" + upr + "#", PRET.GetValueOrDefault(upr));
 #if DEBUG
-                Console.WriteLine(sep[j] + " - " + PRET.GetValueOrDefault(upr));
+                        Console.WriteLine( sep[j] + m.ToString() + " - " + PRET.GetValueOrDefault(upr));
 #endif
+                    }
+                }
+                else
+                {
+                    string upr = sep[j].ToUpper();
+                    serstr = serstr.Replace("#" + upr + "#", PRET.GetValueOrDefault( upr ));
+#if DEBUG
+                    Console.WriteLine(sep[j] + " - " + PRET.GetValueOrDefault(upr));
+#endif
+                }
             }
 
             string PR = sep[0].ToUpper();
 
-            if (!string.IsNullOrEmpty(PRET.GetValueOrDefault(PR)))
-            {
-                post = testDB.Read( serstr );//yamlc.GetRM(Y).Replace("#"+PR+"#", PRET.GetValueOrDefault(PR)));
-            }
+            post = testDB.Read( serstr );
 
             PRET.Add("MATCHINGCOUNT"+PR, post.Count().ToString());
             

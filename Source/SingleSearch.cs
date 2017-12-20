@@ -37,10 +37,16 @@ namespace local_matching.SingleSearch
                     name = sn[0];
                 }
 
+                // Remove the trailing ? if we are doing lines reading
+                if (name.Substring(name.Length-1,1)=="?")
+                {
+                    name = name.Substring(0,name.Length-1);
+                }
+
                 ExpandAndCount(ref PRET, ref Counters, ref MyDBList,
-                        "MATCHINGCOUNT" + name,
-                              name.Substring(0, 3),
-                                Convert.ToInt32(yamlc.GetRM("WEIGHT" + i)));
+                    "MATCHINGCOUNT" + name,
+                        name.Substring(0, 3),
+                            Convert.ToInt32(yamlc.GetRM("WEIGHT" + i)));
 
                 // If you want to do any specific modificatios to the weights so enhance the best match (or reduce one)
                 // then you need to put the code here.
@@ -94,7 +100,7 @@ namespace local_matching.SingleSearch
             }
             else
             {
-                PRET.Add("BESTCANDIDATE", cntr_i.ToString() + " which got " + cntr_max.ToString() + " hits.");
+                PRET.Add("BESTCANDIDATE", cntr_i.ToString() + " which scored " + cntr_max.ToString() + " points.");
             }
         }
 

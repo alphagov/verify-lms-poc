@@ -6,8 +6,8 @@
 # Date:   6/12/2017
 #
 # TODO:   1. Need to list all of the accepted Config NAMES
-#         2. Extend to allow for additonal replacement terms
-#         3. Support lines (e.g. addresses) with the #ADDRESS?# <-- ? on the end
+#         2. (DONE)Extend to allow for additonal replacement terms
+#         3. (DONE)Support lines (e.g. addresses) with the #ADDRESS1# <-- ? on the end of name
 #         4. Support "ordered-bonnus" if lines (3) are in sequence
 #         5. Add support for "DEBUG" settings in this YAML file
 #
@@ -53,6 +53,9 @@ RDBPW:     ""
 # The following sections use substitution and label matching, to make this work, you must ensure
 # that the label you used for substitution is the same as the name. In addtion, it must be at least
 # 3 characters long, not share the first 3 characters with any other label.
+# With the ability to specify multiple parameters in ["DoB","Postcode"] for a name, this allows
+# you to utilise other JSON labels without actually using them. E.G. ["MatchId","DoB"] as described
+# in the examples below.
 # The labels have the same name as they apprear in the JSON, so if those change, these must be also
 # changed otherwise it will not be able to match them up with each other.
 #
@@ -79,17 +82,61 @@ LMatching:
                  FROM Matches
                  WHERE PiD = '#PID#'"
 
+
+# ------------------------
+# Remote Matching Settings
+# ------------------------
+# These examples are using a very simple database structure, this is very similar to Relying Parties
+# whom do not have an extensive data source infrastructure. This could actually be in an Excel
+# Spreadsheet, it would still work.
+#
+# Comment out this section to and remove the "Old" to use the other database approach in the example
+#
+RMatching:
+    -   Name:   ["DoB","Surname","Postcode"]
+        Weight: 100
+        Query:  "SELECT DISTINCT a.*
+                 FROM OneHundredThousandPeople a
+                 WHERE  DATEDIFF('d',a.DateOfBirth,'#DOB#')=0
+                 AND    UCASE(a.SurName) LIKE UCASE('#SURNAME#')
+                 AND    a.PostCode LIKE '#POSTCODE#%'"
+
+# These examples still do the same as above, but it is trawling for many results rather than focusing
+# on a single record like the above example
+Old-RMatching:
+    -   Name:   "DoB"
+        Weight: 10
+        Query:  "SELECT DISTINCT a.ID,a.DateOfBirth
+                 FROM OneHundredThousandPeople a
+                 WHERE  DATEDIFF('d',a.DateOfBirth,'#DOB#')=0"
+
+    -   Name:   "Surname"
+        Weight: 10
+        Query:  "SELECT DISTINCT a.Id,a.SurName
+                FROM OneHundredThousandPeople a
+                WHERE UCASE(a.SurName) LIKE UCASE('#SURNAME#')"
+
+    -   Name:   "Postcode"
+        Weight: 10
+        Query:  "SELECT DISTINCT a.ID,a.PostCode
+                 FROM OneHundredThousandPeople a
+                 WHERE a.PostCode LIKE '#POSTCODE#%'"
+
 # ------------------------
 # Remote Matching Settings
 # ------------------------
 # Matching names must be at least 3 characters, and those 3 characters cannot be duplicated
 # in another search, e.g. POSSIBLE and POSITION both have POS as their first 3 characters so
 # are not legal in the searching. This is due to the way that database results are collated 
-RMatching:
+
+# This is the oldest approach using a complex database structure, albiet with very few records
+# in the test database.
+
+Older-RMatching:
                 # Notice here we are actually defining how we do the remote search, 
                 # using only the first character. Better do it in config, rather than
                 # code modification
-    -   Name:   ["Surname","DoB"]
+    -   Name:   "Surname"
         Weight: 10
         Query:  "SELECT DISTINCT a.Id,b.Surname,b.Verified,b.FromDate,b.ToDate
                 FROM Account a
@@ -98,8 +145,10 @@ RMatching:
 
                 # DOB is simple in its search, we are looking for the date difference
                 # in days to be zero, but we could also search for the same day, same month, 
-                # same year and combine the results
-    -   Name:   "DoB"
+                # same year and combine the results. Here we are using a little cheat to
+                # reuse the DOB (there is one further down). We assign it to another JSON
+                # variable (MatchId) but we never actually use it.
+    -   Name:   ["MatchID","DoB"]
         Weight: 10
         Query:  "SELECT DISTINCT a.ID,a.DoB,a.DoBVerified
                  FROM Account a
@@ -124,3 +173,20 @@ RMatching:
                  FROM Account a
                  LEFT JOIN Address b on a.Id = b.IdLink
                  WHERE b.InternationalPostcode LIKE '#INTERNATIONALPOSTCODE#'"
+
+    -   Name:   ["DoB","Surname"]
+        Weight: 100
+        Query:  "SELECT DISTINCT a.Id,b.Surname,b.Verified,b.FromDate,b.ToDate,a.DoB,a.DoBVerified
+                FROM Account a
+                LEFT JOIN Surname b ON a.Id = b.IdRef 
+                WHERE UCASE(b.Surname) LIKE LEFT(UCASE('#SURNAME#') , 1 )+'%'
+                AND  DATEDIFF('d',a.DoB,'#DOB#')=0"
+            
+    -   Name:   ["Address?","Postcode"]
+        Weight: 1000
+        Query:  "SELECT DISTINCT a.ID,b.Postcode,b.InternationalPostcode,b.Verified,b.FromDate,b.ToDate,c.Line
+                 FROM Account a, Address b, AddressLines c
+                 WHERE  a.ID = b.IDLink
+                 AND    b.Postcode = '#POSTCODE#'
+                 AND    b.ID = c.IDLink
+                 AND    UCASE(c.Line) = UCASE('#ADDRESS1#')"
