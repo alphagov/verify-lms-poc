@@ -18,7 +18,7 @@
 
 ID:       "local-matching-config"
 VERSION:  0.2
-DEBUG:    true
+DEBUG:    false
 
 # ------------------------
 # Local Database Settings
@@ -68,8 +68,8 @@ RDBPW:     ""
 # store the PID locally. When a future cycle 0 search comes in, it will use the LMatching
 # code above to try and find the record.
 LCreate:
-    -   Name:   "PiD" 
-        Query:  "INSERT INTO Matches (PiD,TimeS) Values ( '#PID#' , NOW() )"
+    -   Name:   ["PiD","AccountID"] 
+        Query:  "INSERT INTO Matches (PiD,TimeS,AccountID) Values ( '#PID#' , NOW() , #ACCOUNTID# )"
 
 # ------------------------
 # Local Matching Settings
@@ -79,7 +79,7 @@ LCreate:
 
 LMatching:
     -   Name:   "PiD"
-        Query:  "SELECT DISTINCT Id,PiD
+        Query:  "SELECT DISTINCT Id,PiD,AccountID
                  FROM Matches
                  WHERE PiD = '#PID#'"
 
@@ -91,7 +91,8 @@ LMatching:
 # whom do not have an extensive data source infrastructure. This could actually be in an Excel
 # Spreadsheet, it would still work.
 #
-# Comment out this section to and remove the "Old" to use the other database approach in the example
+# Prefix RMatching with something to comment this section to and remove the "Old" to use the other 
+# database approach in the examples.
 #
 RMatching:
     -   Name:   ["DoB","Surname","Postcode"]

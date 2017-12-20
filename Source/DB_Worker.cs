@@ -110,7 +110,3 @@ namespace local_matching.DBODBC
 
     }
 }
-
-//testDB.Go("INSERT INTO AddressLines (IDLINK,Line) Values (1,'Northwind Traders')");
-//testDB.Go("Microsoft Access Driver (*.mdb, *.accdb)");
-//testDB.Go("MariaDB ODBC 3.0 Driver");

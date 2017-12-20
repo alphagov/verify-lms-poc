@@ -134,12 +134,7 @@ namespace local_matching.YAMLC
 
                 // Remote matches can have complex names now, so we need to make sure we have the first one
                 string name = item.Children[new YamlScalarNode("Name")].ToString();
-/*                if (name.Substring(0,1)=="[")
-                {
-                    string[] sn = name.Substring(2, name.Length - 4).Replace(" ", "").Split(",");
-                    name = sn[0];
-                }
-*/
+
                 this.SetRM("SEARCH" + cnt, name );
                 this.SetRM("WEIGHT" + cnt, item.Children[new YamlScalarNode("Weight")].ToString());
             }

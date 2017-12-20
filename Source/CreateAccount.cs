@@ -29,16 +29,23 @@ namespace local_matching.CreateAccount
             PRET.Add( "LOA", GetSafe(this.LevelOfAssurance));
             PRET.Add( "USERNAME", GetSafe(this.Username));
             PRET.Add( "PASSWORD", GetSafe(this.Password));
+            PRET.Add( "ACCOUNTID", GetSafe(this.AccountId));
 
             // We need to pull out the Firstname, Surname, and DoB, all of these have optional
             // properties
 
             // FIRST NAME
-            PRET.Add("FN", GetSafe(this.FirstName.Value));
-            PRET.Add("FNVER", GetSafe(this.FirstName.Verified).ToString() );
-            PRET.Add("FNTO", GetSafe(this.FirstName.ToDate));
-            PRET.Add("FNFROM", GetSafe(this.FirstName.FromDate));
-
+            try
+            {
+                PRET.Add("FN", GetSafe(this.FirstName.Value));
+                PRET.Add("FNVER", GetSafe(this.FirstName.Verified).ToString() );
+                PRET.Add("FNTO", GetSafe(this.FirstName.ToDate));
+                PRET.Add("FNFROM", GetSafe(this.FirstName.FromDate));
+            }
+            catch
+            {
+                // Something went wrong with the forenames (object not defined)
+            }
             // Not sure what it would do if there wasn't a surname?
             // SURNAME LIST
             try
@@ -89,17 +96,29 @@ namespace local_matching.CreateAccount
             }
 
             // Gender
-            PRET.Add("GENDER", GetSafe(this.Gender.Value));
-            PRET.Add("GENDERVER", GetSafe(this.Gender.Verified).ToString());
-            PRET.Add("GENDERTO", GetSafe(this.Gender.ToDate));
-            PRET.Add("GENDERFROM", GetSafe(this.Gender.FromDate));
-
+            try
+            {
+                PRET.Add("GENDER", GetSafe(this.Gender.Value));
+                PRET.Add("GENDERVER", GetSafe(this.Gender.Verified).ToString());
+                PRET.Add("GENDERTO", GetSafe(this.Gender.ToDate));
+                PRET.Add("GENDERFROM", GetSafe(this.Gender.FromDate));
+            }
+            catch
+            {
+                // No Gender information
+            }
             // Date of Birth
-            PRET.Add("DOB", GetSafe(this.DateOfBirth.Value));
-            PRET.Add("DOBRVER", GetSafe(this.DateOfBirth.Verified).ToString());
-            PRET.Add("DOBTO", GetSafe(this.DateOfBirth.ToDate));
-            PRET.Add("DOBFROM", GetSafe(this.DateOfBirth.FromDate));
-
+            try
+            {
+                PRET.Add("DOB", GetSafe(this.DateOfBirth.Value));
+                PRET.Add("DOBRVER", GetSafe(this.DateOfBirth.Verified).ToString());
+                PRET.Add("DOBTO", GetSafe(this.DateOfBirth.ToDate));
+                PRET.Add("DOBFROM", GetSafe(this.DateOfBirth.FromDate));
+            }
+            catch
+            {
+                // No DOB info
+            }
             // If this is NULL then no address would be searched.
             var Address = GetSafe(this.Address);
             try
@@ -162,6 +181,7 @@ namespace local_matching.CreateAccount
                                         yamlc.GetLS("LDBUN"),
                                         yamlc.GetLS("LDBPW"));
 
+
             string[] ret = testDB.Read(yamlc.GetLM(yamlc.GetLM("SEARCH1")).Replace("#" + yamlc.GetLM("SEARCH1").ToUpper() + "#", PRET.GetValueOrDefault(yamlc.GetLM("SEARCH1").ToUpper())));
 
             if (ret.Count() > 0)
@@ -170,7 +190,25 @@ namespace local_matching.CreateAccount
             }
             else
             {
-                testDB.Go( yamlc.GetLC(yamlc.GetLC("SEARCH1")).Replace("#" + yamlc.GetLC("SEARCH1").ToUpper() + "#", PRET.GetValueOrDefault(yamlc.GetLC("SEARCH1").ToUpper())));
+                string Y = yamlc.GetLC("SEARCH1");
+                string[] sep = new string[] { };
+                int cnt = 1;
+                if (Y.Substring(0, 1) == "[")
+                {
+                    sep = Y.Substring(2, Y.Length - 4).Replace(" ", "").Split(",");
+                    cnt = sep.Count();
+                }
+                else
+                {
+                    List<string> tmp = new List<string> { }; // This is a bit rubbish!
+                    tmp.Add(Y);
+                    sep = tmp.ToArray();
+                }
+
+                // We always need to add the account ID if we know it
+                testDB.Go( yamlc.GetLC( yamlc.GetLC("SEARCH1") ).Replace("#" + sep[0].ToUpper() + "#", PRET.GetValueOrDefault(sep[0].ToUpper()))
+                                                                .Replace("#" + sep[1].ToUpper() + "#", PRET.GetValueOrDefault(sep[1].ToUpper()))                                    
+                                                                );
                 PRET.Add("INSERTING", "NewRecord");
             }
 
@@ -194,7 +232,6 @@ namespace local_matching.CreateAccount
             return FNto;
         }
 
-
         [J("address")] public Address Address { get; set; }
         [J("dateOfBirth")] public DateOfBirth DateOfBirth { get; set; }
         [J("firstName")] public DateOfBirth FirstName { get; set; }
@@ -202,6 +239,7 @@ namespace local_matching.CreateAccount
         [J("levelOfAssurance")] public string LevelOfAssurance { get; set; }
         [J("password")] public string Password { get; set; }
         [J("pid")] public string Pid { get; set; }
+        [J("accountid")] public string AccountId { get; set; }
         [J("surnames")] public List<DateOfBirth> Surnames { get; set; }
         [J("username")] public string Username { get; set; }
     }

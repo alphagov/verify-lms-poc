@@ -79,9 +79,21 @@ namespace local_matching.Controllers
                 return PRET;
 
             // Not debug, so we better work out if we matched or not
-            string result = PRET.GetValueOrDefault("BESTCANDIDATE");
-            if (result != null)
+            string resu = PRET.GetValueOrDefault("BESTCANDIDATE");
+            if (!string.IsNullOrEmpty( resu ))
+            {
+                // Did we get a cycle 0 match? (Normally we would never get here)
+                if (string.IsNullOrEmpty( match_id))
+                {
+                    string acnt = resu.Substring( 0, resu.IndexOf(" "));
+                    // insert the row
+                    createAccount newrow = new createAccount();
+                    newrow.Pid = value.HashedPid;
+                    newrow.AccountId = acnt;
+                    newrow.Process( ref yamlc );
+                }
                 return "{ result: match }";
+            }
             else
                 return "{ result: no-match }";
 
@@ -98,9 +110,15 @@ namespace local_matching.Controllers
 #if DEBUG
             yamlc.Process( YAML_filename );
 #endif
+            // Create the results dictionary
+            Dictionary <string,string> PRET;// = new Dictionary<string, string>{};
+
+            // Call it
+            PRET = value.Process( ref yamlc );
+
             // See if we are already there, if not, create a new entry
             if (yamlc.GetSet("DEBUG")=="true")
-                return value.Process( ref yamlc );
+                return PRET;
             else 
                 return "{ result: success}";
         }
