@@ -96,7 +96,7 @@ namespace local_matching.SingleSearch
             // must state that we don't know who the person is. (very likely a duplicate account in the remote database)
             if (cntr_same > 0)
             {
-                PRET.Add("NOBESTCANDIDATE", "Total of " + (cntr_same + 1).ToString() + " same score.");
+                PRET.Add("NOBESTCANDIDATE", "Total of " + (cntr_same + 1).ToString() + " same score of "+cntr_max.ToString()+" points.");
             }
             else
             {

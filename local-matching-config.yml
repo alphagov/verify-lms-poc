@@ -174,6 +174,8 @@ Older-RMatching:
                  LEFT JOIN Address b on a.Id = b.IdLink
                  WHERE b.InternationalPostcode LIKE '#INTERNATIONALPOSTCODE#'"
 
+                # This method is using two names for subsitution, we must be careful to not accidently
+                # reuse fields (e.g DoB) otherwise it'll get confused when it brings back results
     -   Name:   ["DoB","Surname"]
         Weight: 100
         Query:  "SELECT DISTINCT a.Id,b.Surname,b.Verified,b.FromDate,b.ToDate,a.DoB,a.DoBVerified
@@ -182,6 +184,9 @@ Older-RMatching:
                 WHERE UCASE(b.Surname) LIKE LEFT(UCASE('#SURNAME#') , 1 )+'%'
                 AND  DATEDIFF('d',a.DoB,'#DOB#')=0"
             
+                # This method is using the Address? directive, since address has multiple lines we need
+                # to be able to search using them. Notice than when you use them for replication you
+                # need to specifiy which line of the address, here we are using the first one, #ADDRESS1#
     -   Name:   ["Address?","Postcode"]
         Weight: 1000
         Query:  "SELECT DISTINCT a.ID,b.Postcode,b.InternationalPostcode,b.Verified,b.FromDate,b.ToDate,c.Line
