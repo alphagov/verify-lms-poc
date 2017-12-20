@@ -37,6 +37,9 @@ namespace local_matching.YAMLC
     public class YAML_Config
     {
 
+        private Dictionary<string, string> localSettings = new Dictionary<string, string>();
+        public void SetSet(string k, string v) { localSettings[k] = v; }
+        public string GetSet(string k) { return localSettings[k]; }
         private Dictionary<string, string> localServer = new Dictionary<string, string>();
         public void SetLS(string k, string v) { localServer[k] = v; }
         public string GetLS(string k) { return localServer[k]; }
@@ -53,6 +56,12 @@ namespace local_matching.YAMLC
         public void SetLC(string k, string v) { localCreate[k] = v; }
         public string GetLC(string k) { return localCreate[k]; }
 
+        private string yaml_version;
+        public YAML_Config(string dr)
+        {
+                yaml_version = dr;
+        }
+
         public void Process(string filename)
         {
             // ----------------------------------------------------------------------------------------
@@ -67,6 +76,22 @@ namespace local_matching.YAMLC
 
             // Examine the stream
             var mapping = (YamlMappingNode)yaml.Documents[0].RootNode;
+
+            string[] listSET = new string[] {"ID","VERSION","DEBUG"};
+            foreach (string item in listSET)
+            {
+                this.SetSet( item, mapping.Children[new YamlScalarNode(item)].ToString());
+            }
+
+            if (this.GetSet("VERSION") != yaml_version)
+            {
+                // Version is incorrect, we must not continue
+#if DEBUG
+                Console.WriteLine("YAML File Version does not match, version "+yaml_version+" expected, "+this.GetSet("VERSION")+" provided.");
+#endif                
+                input.Dispose();
+                return;
+            }
 
             string[] listLS = new string[] {"ODBC","SERVER","DB","DBUN","DBPW"};
             foreach (string item in listLS)

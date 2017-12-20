@@ -25,8 +25,9 @@ namespace local_matching.Controllers
     public class MatchingController : Controller
     {
         string  YAML_filename = "local-matching-config.yml";
-        
-        YAML_Config yamlc = new YAML_Config();
+
+        // This also tells the YAML what version we are looking for.        
+        YAML_Config yamlc = new YAML_Config("0.2");
 
         public MatchingController()
         {
@@ -73,7 +74,17 @@ namespace local_matching.Controllers
             // Return the match or nomatch result
             strategy.Process( ref yamlc, ref PRET );
 
-            return PRET;
+            // If we are debug mode, just return back the PRET
+            if (yamlc.GetSet("DEBUG")=="true")
+                return PRET;
+
+            // Not debug, so we better work out if we matched or not
+            string result = PRET.GetValueOrDefault("BESTCANDIDATE");
+            if (result != null)
+                return "{ result: match }";
+            else
+                return "{ result: no-match }";
+
         }
 
         //##########################################################################################
@@ -88,7 +99,10 @@ namespace local_matching.Controllers
             yamlc.Process( YAML_filename );
 #endif
             // See if we are already there, if not, create a new entry
-            return value.Process( ref yamlc );
+            if (yamlc.GetSet("DEBUG")=="true")
+                return value.Process( ref yamlc );
+            else 
+                return "{ result: success}";
         }
     }
 }
