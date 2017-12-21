@@ -14,7 +14,7 @@
 
 ID:       "local-matching-config"
 VERSION:  0.2
-DEBUG:    false
+DEBUG:    true
 
 # ------------------------
 # Local Database Settings
@@ -27,6 +27,7 @@ LDB:       "Dbq=.\\demo-LMS.accdb"
 LDBUN:     "Admin"
 LDBPW:     ""
 
+#----------------------- This has been left in as an example of MariaDB conenctor
 #LODBC:     "MariaDB ODBC 3.0 Driver"
 #LSERVER:   "127.0.0.1"
 #LDB:       "Database=LMS"
@@ -44,13 +45,6 @@ RSERVER:   "127.0.0.1"
 RDB:       "Dbq=.\\demo-LMS.accdb"
 RDBUN:     "Admin"
 RDBPW:     ""
-
-#----------------------- This has been left in as an example of MariaDB conenctor
-                #LODBC:     "MariaDB ODBC 3.0 Driver"
-                #LSERVER:   "127.0.0.1"
-                #LDB:       "Database=LMS"
-                #LDBUN:     "root"
-                #LDBPW:     "mypass"
 
 # ------------------------------------------------------------------------------------------------
 # The following sections use substitution and label matching, to make this work, you must ensure
@@ -93,7 +87,7 @@ LMatching:
 # whom do not have an extensive data source infrastructure. This could actually be in an Excel
 # Spreadsheet, it would still work.
 #
-# Prefix RMatching with something to comment this section to and remove the "Old" to use the other 
+# Postfix RMatching with something to comment this section to and remove the "Old" to use the other 
 # database approach in the examples.
 #
 RMatching:
@@ -107,7 +101,7 @@ RMatching:
 
 # These examples still do the same as above, but it is trawling for many results rather than focusing
 # on a single record like the above example
-olkd-RMatching:
+RMatching-Example1:
     -   Name:   "DoB"
         Weight: 10
         Query:  "SELECT DISTINCT a.ID,a.DateOfBirth
@@ -136,7 +130,7 @@ olkd-RMatching:
 # This is the oldest approach using a complex database structure, albiet with very few records
 # in the test database.
 
-old-RMatching:
+RMatching-Example2:
                 # Notice here we are actually defining how we do the remote search, 
                 # using only the first character. Better do it in config, rather than
                 # code modification

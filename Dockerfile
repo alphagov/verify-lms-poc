@@ -10,5 +10,6 @@ RUN dotnet restore
 
 # Expose the port and start the app
 EXPOSE 6000
+EXPOSE 3306
 CMD [ "dotnet", "run" ]
 
