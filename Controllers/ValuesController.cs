@@ -74,16 +74,13 @@ namespace local_matching.Controllers
             // Return the match or nomatch result
             strategy.Process( ref yamlc, ref PRET );
 
-            // If we are debug mode, just return back the PRET
-            if (yamlc.GetSet("DEBUG")=="true")
-                return PRET;
 
             // Not debug, so we better work out if we matched or not
             string resu = PRET.GetValueOrDefault("BESTCANDIDATE");
             if (!string.IsNullOrEmpty( resu ))
             {
-                // Did we get a cycle 0 match? (Normally we would never get here)
-                if (string.IsNullOrEmpty( match_id))
+                // We got a match, but not a cycle zero, so we need to create the row
+                if (string.IsNullOrEmpty( match_id ))
                 {
                     string acnt = resu.Substring( 0, resu.IndexOf(" "));
                     // insert the row
@@ -92,8 +89,18 @@ namespace local_matching.Controllers
                     newrow.AccountId = acnt;
                     newrow.Process( ref yamlc );
                 }
-                return "{ result: match }";
             }
+            else
+            {   // This tricks the system into knowing we have a match when cycle 0 works
+                resu = match_id;
+            }
+            
+            // If we are debug mode, just return back the PRET
+            if (yamlc.GetSet("DEBUG") == "true")
+                return PRET;
+
+            if (!string.IsNullOrEmpty(resu))
+                return "{ result: match }";
             else
                 return "{ result: no-match }";
 

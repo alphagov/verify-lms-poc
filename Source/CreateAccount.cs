@@ -37,10 +37,10 @@ namespace local_matching.CreateAccount
             // FIRST NAME
             try
             {
-                PRET.Add("FN", GetSafe(this.FirstName.Value));
-                PRET.Add("FNVER", GetSafe(this.FirstName.Verified).ToString() );
-                PRET.Add("FNTO", GetSafe(this.FirstName.ToDate));
-                PRET.Add("FNFROM", GetSafe(this.FirstName.FromDate));
+                PRET.Add("FN", GetSafe(this.FirstName?.Value));
+                PRET.Add("FNVER", GetSafe(this.FirstName?.Verified).ToString() );
+                PRET.Add("FNTO", GetSafe(this.FirstName?.ToDate));
+                PRET.Add("FNFROM", GetSafe(this.FirstName?.FromDate));
             }
             catch
             {
@@ -98,10 +98,10 @@ namespace local_matching.CreateAccount
             // Gender
             try
             {
-                PRET.Add("GENDER", GetSafe(this.Gender.Value));
-                PRET.Add("GENDERVER", GetSafe(this.Gender.Verified).ToString());
-                PRET.Add("GENDERTO", GetSafe(this.Gender.ToDate));
-                PRET.Add("GENDERFROM", GetSafe(this.Gender.FromDate));
+                PRET.Add("GENDER", GetSafe(this.Gender?.Value));
+                PRET.Add("GENDERVER", GetSafe(this.Gender?.Verified).ToString());
+                PRET.Add("GENDERTO", GetSafe(this.Gender?.ToDate));
+                PRET.Add("GENDERFROM", GetSafe(this.Gender?.FromDate));
             }
             catch
             {
@@ -110,10 +110,10 @@ namespace local_matching.CreateAccount
             // Date of Birth
             try
             {
-                PRET.Add("DOB", GetSafe(this.DateOfBirth.Value));
-                PRET.Add("DOBRVER", GetSafe(this.DateOfBirth.Verified).ToString());
-                PRET.Add("DOBTO", GetSafe(this.DateOfBirth.ToDate));
-                PRET.Add("DOBFROM", GetSafe(this.DateOfBirth.FromDate));
+                PRET.Add("DOB", GetSafe(this.DateOfBirth?.Value));
+                PRET.Add("DOBRVER", GetSafe(this.DateOfBirth?.Verified).ToString());
+                PRET.Add("DOBTO", GetSafe(this.DateOfBirth?.ToDate));
+                PRET.Add("DOBFROM", GetSafe(this.DateOfBirth?.FromDate));
             }
             catch
             {
@@ -212,7 +212,11 @@ namespace local_matching.CreateAccount
                 PRET.Add("INSERTING", "NewRecord");
             }
 
-            return PRET;
+            // If we are debug mode, just return back the PRET
+            if (yamlc.GetSet("DEBUG") == "true")
+                return PRET;
+
+            return "{result: success}";
         }
 
 

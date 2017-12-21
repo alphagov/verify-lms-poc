@@ -29,16 +29,16 @@ namespace local_matching.Matching
             PRET.Add("LOA", GetSafe(this.LevelOfAssurance));
 
             // Date of Birth
-            PRET.Add("DOB", GetSafe(this.MatchingDataset.DateOfBirth.Value));
-            PRET.Add("DOBVER", GetSafe(this.MatchingDataset.DateOfBirth.Verified).ToString() ); // bool
-            PRET.Add("DOBTO", GetSafe(this.MatchingDataset.DateOfBirth.To));
-            PRET.Add("DOBFROM", GetSafe(this.MatchingDataset.DateOfBirth.From));
+            PRET.Add("DOB", GetSafe(this.MatchingDataset?.DateOfBirth?.Value));
+            PRET.Add("DOBVER", GetSafe(this.MatchingDataset?.DateOfBirth?.Verified).ToString() ); // bool
+            PRET.Add("DOBTO", GetSafe(this.MatchingDataset?.DateOfBirth?.To));
+            PRET.Add("DOBFROM", GetSafe(this.MatchingDataset?.DateOfBirth?.From));
 
             // Get the drivers license, although really this could be any kind
             // of attribute, not sure how we "Differentiate" between them,
             try
             {
-                PRET.Add("DRIVERSLICENSE", GetSafe(this.Cycle3Dataset.Attributes.DriversLicence));
+                PRET.Add("DRIVERSLICENSE", GetSafe(this.Cycle3Dataset?.Attributes?.DriversLicence));
             }
             catch
             {
@@ -59,7 +59,7 @@ namespace local_matching.Matching
                     {
                         cnt++;
 
-                        var SNto = GetSafe(Surnames.Current.To);
+                        var SNto = GetSafe(Surnames.Current?.To);
 
                         DateTime dtTD = DateTime.Now;
                         DateTime dtNow = DateTime.Now;
@@ -67,9 +67,9 @@ namespace local_matching.Matching
                         if (string.IsNullOrEmpty(SNto)) // ToDate couild be blank, meaning they are still there
                         {
                             PRET.Add("SURNAMETO", SNto);
-                            PRET.Add("SURNAMEFROM", GetSafe(Surnames.Current.From));
-                            PRET.Add("SURNAME", GetSafe(Surnames.Current.Value));
-                            PRET.Add("SURNAMEVER", GetSafe(Surnames.Current.Verified).ToString());
+                            PRET.Add("SURNAMEFROM", GetSafe(Surnames.Current?.From));
+                            PRET.Add("SURNAME", GetSafe(Surnames.Current?.Value));
+                            PRET.Add("SURNAMEVER", GetSafe(Surnames.Current?.Verified).ToString());
                         }
                         else          // ToDate could be ahead of Now, meaning they are still living there
                         {
@@ -77,9 +77,9 @@ namespace local_matching.Matching
                             if (DateTime.Compare(dtTD, dtNow) >= 0)
                             {
                                 PRET.Add("SURNAMETO", SNto);
-                                PRET.Add("SURNAMEFROM", GetSafe(Surnames.Current.From));
-                                PRET.Add("SURNAME", GetSafe(Surnames.Current.Value));
-                                PRET.Add("SURNAMEVER", GetSafe(Surnames.Current.Verified).ToString());
+                                PRET.Add("SURNAMEFROM", GetSafe(Surnames.Current?.From));
+                                PRET.Add("SURNAME", GetSafe(Surnames.Current?.Value));
+                                PRET.Add("SURNAMEVER", GetSafe(Surnames.Current?.Verified).ToString());
                             }
                         }
                     }
@@ -109,7 +109,7 @@ namespace local_matching.Matching
                     {
                         count++;
 
-                        var PCto = GetSafe(Address.Current.ToDate);
+                        var PCto = GetSafe(Address.Current?.ToDate);
 
                         // -------------------------------------------------------------------------------
                         // We need to decide which of the Addresses to use
@@ -121,10 +121,10 @@ namespace local_matching.Matching
 
                         if (string.IsNullOrEmpty(PCto)) // ToDate couild be blank, meaning they are still there
                         {
-                            PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address.Current.InternationalPostCode));
-                            PRET.Add("POSTCODE", GetSafe(Address.Current.PostCode));
-                            PRET.Add("POSTCODEVER", GetSafe(Address.Current.Verified).ToString());
-                            PRET.Add("POSTCODEFROM", GetSafe(Address.Current.FromDate));
+                            PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address.Current?.InternationalPostCode));
+                            PRET.Add("POSTCODE", GetSafe(Address.Current?.PostCode));
+                            PRET.Add("POSTCODEVER", GetSafe(Address.Current?.Verified).ToString());
+                            PRET.Add("POSTCODEFROM", GetSafe(Address.Current?.FromDate));
                             PRET.Add("POSTCODETO", PCto);
                             thisAddr = true;
                         }
@@ -133,10 +133,10 @@ namespace local_matching.Matching
                             dtTD = Convert.ToDateTime(PCto);
                             if (DateTime.Compare(dtTD, dtNow) >= 0)
                             {
-                                PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address.Current.InternationalPostCode));
-                                PRET.Add("POSTCODE", GetSafe(Address.Current.PostCode));
-                                PRET.Add("POSTCODEVER", GetSafe(Address.Current.Verified).ToString());
-                                PRET.Add("POSTCODEFROM", GetSafe(Address.Current.FromDate));
+                                PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address.Current?.InternationalPostCode));
+                                PRET.Add("POSTCODE", GetSafe(Address.Current?.PostCode));
+                                PRET.Add("POSTCODEVER", GetSafe(Address.Current?.Verified).ToString());
+                                PRET.Add("POSTCODEFROM", GetSafe(Address.Current?.FromDate));
                                 PRET.Add("POSTCODETO", PCto);
                                 thisAddr = true;
                             }

@@ -6,10 +6,6 @@
 # Date:   6/12/2017
 #
 # TODO:   1. Need to list all of the accepted Config NAMES
-#         2. (DONE)Extend to allow for additonal replacement terms
-#         3. (DONE)Support lines (e.g. addresses) with the #ADDRESS1# <-- ? on the end of name
-#         4. Support "ordered-bonnus" if lines (3) are in sequence
-#         5. Add support for "DEBUG" settings in this YAML file
 #
 
 # ------------------------
@@ -18,7 +14,7 @@
 
 ID:       "local-matching-config"
 VERSION:  0.2
-DEBUG:    false
+DEBUG:    true
 
 # ------------------------
 # Local Database Settings
