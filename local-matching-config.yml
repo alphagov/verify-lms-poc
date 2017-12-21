@@ -14,7 +14,7 @@
 
 ID:       "local-matching-config"
 VERSION:  0.2
-DEBUG:    true
+DEBUG:    false
 
 # ------------------------
 # Local Database Settings
@@ -26,6 +26,12 @@ LSERVER:   "127.0.0.1"
 LDB:       "Dbq=.\\demo-LMS.accdb"
 LDBUN:     "Admin"
 LDBPW:     ""
+
+#LODBC:     "MariaDB ODBC 3.0 Driver"
+#LSERVER:   "127.0.0.1"
+#LDB:       "Database=LMS"
+#LDBUN:     "root"
+#LDBPW:     "mypass"
 
 # ------------------------
 # Remote Database Settings
@@ -42,7 +48,7 @@ RDBPW:     ""
 #----------------------- This has been left in as an example of MariaDB conenctor
                 #LODBC:     "MariaDB ODBC 3.0 Driver"
                 #LSERVER:   "127.0.0.1"
-                #LDB:       "Database=LMS-local"
+                #LDB:       "Database=LMS"
                 #LDBUN:     "root"
                 #LDBPW:     "mypass"
 
@@ -101,7 +107,7 @@ RMatching:
 
 # These examples still do the same as above, but it is trawling for many results rather than focusing
 # on a single record like the above example
-Old-RMatching:
+olkd-RMatching:
     -   Name:   "DoB"
         Weight: 10
         Query:  "SELECT DISTINCT a.ID,a.DateOfBirth
@@ -130,7 +136,7 @@ Old-RMatching:
 # This is the oldest approach using a complex database structure, albiet with very few records
 # in the test database.
 
-Older-RMatching:
+old-RMatching:
                 # Notice here we are actually defining how we do the remote search, 
                 # using only the first character. Better do it in config, rather than
                 # code modification

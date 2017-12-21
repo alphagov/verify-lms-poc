@@ -74,7 +74,6 @@ namespace local_matching.Controllers
             // Return the match or nomatch result
             strategy.Process( ref yamlc, ref PRET );
 
-
             // Not debug, so we better work out if we matched or not
             string resu = PRET.GetValueOrDefault("BESTCANDIDATE");
             if (!string.IsNullOrEmpty( resu ))
@@ -117,17 +116,16 @@ namespace local_matching.Controllers
 #if DEBUG
             yamlc.Process( YAML_filename );
 #endif
-            // Create the results dictionary
-            Dictionary <string,string> PRET;// = new Dictionary<string, string>{};
+            
+            // Create the results dictionary and process YAMLC
 
-            // Call it
-            PRET = value.Process( ref yamlc );
+            Dictionary<string, string> PRET = PRET = value.Process( ref yamlc );
 
             // See if we are already there, if not, create a new entry
             if (yamlc.GetSet("DEBUG")=="true")
                 return PRET;
             else 
-                return "{ result: success}";
+                return "{ result: success }";
         }
     }
 }

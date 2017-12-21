@@ -134,10 +134,10 @@ namespace local_matching.CreateAccount
 
                 if (string.IsNullOrEmpty(PCto)) // ToDate couild be blank, meaning they are still there
                 {
-                    PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address.InternationalPostCode));
-                    PRET.Add("POSTCODE", GetSafe(Address.PostCode));
-                    PRET.Add("POSTCODEVER", GetSafe(Address.Verified).ToString());
-                    PRET.Add("POSTCODEFROM", GetSafe(Address.FromDate));
+                    PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address?.InternationalPostCode));
+                    PRET.Add("POSTCODE", GetSafe(Address?.PostCode));
+                    PRET.Add("POSTCODEVER", GetSafe(Address?.Verified).ToString());
+                    PRET.Add("POSTCODEFROM", GetSafe(Address?.FromDate));
                     PRET.Add("POSTCODETO", PCto );
                 }
                 else          // ToDate could be ahead of Now, meaning they are still living there
@@ -145,10 +145,10 @@ namespace local_matching.CreateAccount
                     dtTD = Convert.ToDateTime(PCto);
                     if (DateTime.Compare(dtTD, dtNow) >= 0)
                     {
-                        PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address.InternationalPostCode));
-                        PRET.Add("POSTCODE", GetSafe(Address.PostCode));
-                        PRET.Add("POSTCODEVER", GetSafe(Address.Verified).ToString());
-                        PRET.Add("POSTCODEFROM", GetSafe(Address.FromDate));
+                        PRET.Add("INTERNATIONALPOSTCODE", GetSafe(Address?.InternationalPostCode));
+                        PRET.Add("POSTCODE", GetSafe(Address?.PostCode));
+                        PRET.Add("POSTCODEVER", GetSafe(Address?.Verified).ToString());
+                        PRET.Add("POSTCODEFROM", GetSafe(Address?.FromDate));
                         PRET.Add("POSTCODETO", PCto );
                     }
                 }
@@ -205,6 +205,11 @@ namespace local_matching.CreateAccount
                     sep = tmp.ToArray();
                 }
 
+                // Check if we have an account number, if we don't add a NULL statement
+                 if (string.IsNullOrEmpty( PRET.GetValueOrDefault(sep[1].ToUpper())))
+                {
+                        PRET[sep[1].ToUpper()]="NULL";
+                }
                 // We always need to add the account ID if we know it
                 testDB.Go( yamlc.GetLC( yamlc.GetLC("SEARCH1") ).Replace("#" + sep[0].ToUpper() + "#", PRET.GetValueOrDefault(sep[0].ToUpper()))
                                                                 .Replace("#" + sep[1].ToUpper() + "#", PRET.GetValueOrDefault(sep[1].ToUpper()))                                    
@@ -212,11 +217,8 @@ namespace local_matching.CreateAccount
                 PRET.Add("INSERTING", "NewRecord");
             }
 
-            // If we are debug mode, just return back the PRET
-            if (yamlc.GetSet("DEBUG") == "true")
-                return PRET;
-
-            return "{result: success}";
+            // We always return the PRET, not a success or failure, that is handled in the value controller
+            return PRET;
         }
 
 
