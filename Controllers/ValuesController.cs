@@ -48,6 +48,12 @@ namespace local_matching.Controllers
 #if DEBUG
             yamlc.Process( YAML_filename );
 #endif
+            if (yamlc.HasErrors)
+            {
+                Console.WriteLine("Cannot continue with faulty YAML Config.");
+                return "{ error: YAML Config has faults}";
+            }
+
             // Create the results dictionary
             Dictionary <string,string> PRET;// = new Dictionary<string, string>{};
 
@@ -63,6 +69,7 @@ namespace local_matching.Controllers
             {
 #if DEBUG
                 Console.WriteLine("WE FOUND A CYCLE 0 MATCH - "+match_id);
+                PRET.Add("CYCLE0MATCH", "True");
 #endif
             }
             // Do a trawl of the remote database
@@ -116,7 +123,12 @@ namespace local_matching.Controllers
 #if DEBUG
             yamlc.Process( YAML_filename );
 #endif
-            
+            if (yamlc.HasErrors)
+            {
+                Console.WriteLine("Cannot continue with faulty YAML Config.");
+                return "{ error: YAML Config has faults}";
+            }
+
             // Create the results dictionary and process YAMLC
 
             Dictionary<string, string> PRET = PRET = value.Process( ref yamlc );

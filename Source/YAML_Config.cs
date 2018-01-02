@@ -56,6 +56,8 @@ namespace local_matching.YAMLC
         public void SetLC(string k, string v) { localCreate[k] = v; }
         public string GetLC(string k) { return localCreate[k]; }
 
+        public Boolean HasErrors = false;
+
         private string yaml_version;
         public YAML_Config(string dr)
         {
@@ -72,76 +74,92 @@ namespace local_matching.YAMLC
 
             // Load the stream
             var yaml = new YamlStream();
-            yaml.Load(input);
 
             // Examine the stream
-            var mapping = (YamlMappingNode)yaml.Documents[0].RootNode;
+            YamlMappingNode mapping;
 
-            string[] listSET = new string[] {"ID","VERSION","DEBUG"};
-            foreach (string item in listSET)
+            string[] listSET = new string[] { "ID", "VERSION", "DEBUG" };
+            string[] listLS = new string[] { "ODBC", "SERVER", "DB", "DBUN", "DBPW" };
+
+            try
             {
-                this.SetSet( item, mapping.Children[new YamlScalarNode(item)].ToString());
+                yaml.Load(input);
+                
+                mapping = (YamlMappingNode)yaml.Documents[0].RootNode;
+
+                foreach (string item in listSET)
+                {
+                    this.SetSet( item, mapping.Children[new YamlScalarNode(item)].ToString());
+                }
+
+                if (this.GetSet("VERSION") != yaml_version)
+                {
+                    // Version is incorrect, we must not continue
+    #if DEBUG
+                    Console.WriteLine("YAML File Version does not match, version "+yaml_version+" expected, "+this.GetSet("VERSION")+" provided.");
+    #endif                
+                    input.Dispose();
+                    return;
+                }
+
+                foreach (string item in listLS)
+                {
+                    this.SetLS("L" + item, mapping.Children[new YamlScalarNode("L" + item)].ToString());
+                    this.SetRS("R" + item, mapping.Children[new YamlScalarNode("R" + item)].ToString());
+                }
+
+                int cnt = 0;
+
+                // List all the Local Creates
+                var items0 = (YamlSequenceNode)mapping.Children[new YamlScalarNode("LCreate")];
+                foreach (YamlMappingNode item in items0)
+                {
+                    cnt++;
+                    this.SetLC(item.Children[new YamlScalarNode("Name")].ToString(),
+                                    item.Children[new YamlScalarNode("Query")].ToString());
+                    this.SetLC("SEARCH" + cnt, item.Children[new YamlScalarNode("Name")].ToString());
+                }
+
+                // List all the Local Matching
+                var items1 = (YamlSequenceNode)mapping.Children[new YamlScalarNode("LMatching")];
+                cnt=0;
+                foreach (YamlMappingNode item in items1)
+                {
+                    cnt++;
+                    this.SetLM(item.Children[new YamlScalarNode("Name")].ToString(),
+                                    item.Children[new YamlScalarNode("Query")].ToString());
+                    this.SetLM("SEARCH" + cnt, item.Children[new YamlScalarNode("Name")].ToString());
+                }
+
+                // List all the Remote Matching
+                var items2 = (YamlSequenceNode)mapping.Children[new YamlScalarNode("RMatching")];
+                cnt = 0;
+                foreach (YamlMappingNode item in items2)
+                {
+                    cnt++;
+                    this.SetRM(item.Children[new YamlScalarNode("Name")].ToString(),
+                                    item.Children[new YamlScalarNode("Query")].ToString());
+
+                    // Remote matches can have complex names now, so we need to make sure we have the first one
+                    string name = item.Children[new YamlScalarNode("Name")].ToString();
+
+                    this.SetRM("SEARCH" + cnt, name );
+                    this.SetRM("WEIGHT" + cnt, item.Children[new YamlScalarNode("Weight")].ToString());
+                }
+                this.SetRM("SEARCHCOUNT", cnt.ToString() );
             }
-
-            if (this.GetSet("VERSION") != yaml_version)
+            catch
             {
-                // Version is incorrect, we must not continue
+                // Error occured, make sure we close the file off or it can't be fixed
 #if DEBUG
-                Console.WriteLine("YAML File Version does not match, version "+yaml_version+" expected, "+this.GetSet("VERSION")+" provided.");
-#endif                
+                Console.WriteLine("YAML File provided must contain errors, check the speach marks!.");
+#endif
+                HasErrors = true;
+            }            
+            finally
+            {
                 input.Dispose();
-                return;
             }
-
-            string[] listLS = new string[] {"ODBC","SERVER","DB","DBUN","DBPW"};
-            foreach (string item in listLS)
-            {
-                this.SetLS("L" + item, mapping.Children[new YamlScalarNode("L" + item)].ToString());
-                this.SetRS("R" + item, mapping.Children[new YamlScalarNode("R" + item)].ToString());
-            }
-
-            int cnt = 0;
-
-            // List all the Local Creates
-            var items0 = (YamlSequenceNode)mapping.Children[new YamlScalarNode("LCreate")];
-            foreach (YamlMappingNode item in items0)
-            {
-                cnt++;
-                this.SetLC(item.Children[new YamlScalarNode("Name")].ToString(),
-                                item.Children[new YamlScalarNode("Query")].ToString());
-                this.SetLC("SEARCH" + cnt, item.Children[new YamlScalarNode("Name")].ToString());
-            }
-
-            // List all the Local Matching
-            var items1 = (YamlSequenceNode)mapping.Children[new YamlScalarNode("LMatching")];
-            cnt=0;
-            foreach (YamlMappingNode item in items1)
-            {
-                cnt++;
-                this.SetLM(item.Children[new YamlScalarNode("Name")].ToString(),
-                                item.Children[new YamlScalarNode("Query")].ToString());
-                this.SetLM("SEARCH" + cnt, item.Children[new YamlScalarNode("Name")].ToString());
-            }
-
-            // List all the Remote Matching
-            var items2 = (YamlSequenceNode)mapping.Children[new YamlScalarNode("RMatching")];
-            cnt = 0;
-            foreach (YamlMappingNode item in items2)
-            {
-                cnt++;
-                this.SetRM(item.Children[new YamlScalarNode("Name")].ToString(),
-                                item.Children[new YamlScalarNode("Query")].ToString());
-
-                // Remote matches can have complex names now, so we need to make sure we have the first one
-                string name = item.Children[new YamlScalarNode("Name")].ToString();
-
-                this.SetRM("SEARCH" + cnt, name );
-                this.SetRM("WEIGHT" + cnt, item.Children[new YamlScalarNode("Weight")].ToString());
-            }
-            this.SetRM("SEARCHCOUNT", cnt.ToString() );
-            
-            input.Dispose();
-
         }
     }
 }

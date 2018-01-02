@@ -87,11 +87,14 @@ LMatching:
 # whom do not have an extensive data source infrastructure. This could actually be in an Excel
 # Spreadsheet, it would still work.
 #
-# Postfix RMatching with something to comment this section to and remove the "Old" to use the other 
-# database approach in the examples.
+# Postfix RMatching with something to comment this section to use the other database approach in the 
+# examples.
 #
-RMatching:
-    -   Name:   ["DoB","Surname","Postcode"]
+# Notice in this example, the first "name" isn't actually used, it isn't even relevant, it's just
+# used to differentiate in the internal syntax.
+#
+RMatching-A:
+    -   Name:   ["Combined","DoB","Surname","Postcode"]
         Weight: 100
         Query:  "SELECT DISTINCT a.*
                  FROM OneHundredThousandPeople a
@@ -101,7 +104,7 @@ RMatching:
 
 # These examples still do the same as above, but it is trawling for many results rather than focusing
 # on a single record like the above example
-RMatching-Example1:
+RMatching:
     -   Name:   "DoB"
         Weight: 10
         Query:  "SELECT DISTINCT a.ID,a.DateOfBirth
@@ -110,7 +113,7 @@ RMatching-Example1:
 
     -   Name:   "Surname"
         Weight: 10
-        Query:  "SELECT DISTINCT a.Id,a.SurName
+        Query:  "SELECT DISTINCT a.Id,a.SurName,a.Address1
                 FROM OneHundredThousandPeople a
                 WHERE UCASE(a.SurName) LIKE UCASE('#SURNAME#')"
 
@@ -120,6 +123,13 @@ RMatching-Example1:
                  FROM OneHundredThousandPeople a
                  WHERE a.PostCode LIKE '#POSTCODE#%'"
 
+# This is fancy, it's looking for the house number only, or first part anyway!
+    -   Name:   "Address?"
+        Weight: 10
+        Query:  "SELECT DISTINCT a.*
+                 FROM OneHundredThousandPeople a
+                 WHERE  LEFT( UCASE(a.Address1) , INSTR(a.Address1,' ') ) = 
+                        LEFT( UCASE('#ADDRESS1#') , INSTR(UCASE('#ADDRESS1#'),' ') )"
 # ------------------------
 # Remote Matching Settings
 # ------------------------
@@ -130,7 +140,7 @@ RMatching-Example1:
 # This is the oldest approach using a complex database structure, albiet with very few records
 # in the test database.
 
-RMatching-Example2:
+RMatching-C:
                 # Notice here we are actually defining how we do the remote search, 
                 # using only the first character. Better do it in config, rather than
                 # code modification
@@ -144,9 +154,10 @@ RMatching-Example2:
                 # DOB is simple in its search, we are looking for the date difference
                 # in days to be zero, but we could also search for the same day, same month, 
                 # same year and combine the results. Here we are using a little cheat to
-                # reuse the DOB (there is one further down). We assign it to another JSON
-                # variable (MatchId) but we never actually use it.
-    -   Name:   ["MatchID","DoB"]
+                # reuse the DOB (there is one further down). We assign it to another unique
+                # variable (2DOB) but we never actually use it here, but we have another DOB
+                # in the same multi-query block so we can't reuse it.
+    -   Name:   ["2DOB","DoB"]
         Weight: 10
         Query:  "SELECT DISTINCT a.ID,a.DoB,a.DoBVerified
                  FROM Account a
@@ -185,6 +196,7 @@ RMatching-Example2:
                 # This method is using the Address? directive, since address has multiple lines we need
                 # to be able to search using them. Notice than when you use them for replication you
                 # need to specifiy which line of the address, here we are using the first one, #ADDRESS1#
+                # We only use the house number in this example (it leaves the space on the end).
     -   Name:   ["Address?","Postcode"]
         Weight: 1000
         Query:  "SELECT DISTINCT a.ID,b.Postcode,b.InternationalPostcode,b.Verified,b.FromDate,b.ToDate,c.Line
@@ -192,4 +204,5 @@ RMatching-Example2:
                  WHERE  a.ID = b.IDLink
                  AND    b.Postcode = '#POSTCODE#'
                  AND    b.ID = c.IDLink
-                 AND    UCASE(c.Line) = UCASE('#ADDRESS1#')"
+                 AND    LEFT( UCASE(c.Line) , INSTR(c.line,' ') ) = 
+                        LEFT( UCASE('#ADDRESS1#') , INSTR(UCASE('#ADDRESS1#'),' ') )"

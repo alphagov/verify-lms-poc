@@ -43,11 +43,6 @@ namespace local_matching.SingleSearch
                     name = name.Substring(0,name.Length-1);
                 }
 
-                ExpandAndCount(ref PRET, ref Counters, ref MyDBList,
-                    "MATCHINGCOUNT" + name,
-                        name.Substring(0, 3),
-                            Convert.ToInt32(yamlc.GetRM("WEIGHT" + i)));
-
                 // If you want to do any specific modificatios to the weights so enhance the best match (or reduce one)
                 // then you need to put the code here.
                 // eg.
@@ -55,16 +50,12 @@ namespace local_matching.SingleSearch
                 {
                     case "SURNAME":
                         // Call_Surname_SoundEx( ref PRET, ref Counters, ref MyDBList );
-                        break;
                     case "DOB":
                         // We may have decided to just use year of birth
-                        break;
                     case "INTERNATIONALPOSTCODE":
                         // maybe we have a special postcode reader to work out area
-                        break;
                     case "POSTCODE":
                         // maybe we have a special postcode reader to work out area
-                        break;
                     case "ADDRESS1":
                     case "ADDRESS2":
                     case "ADDRESS3":
@@ -75,9 +66,13 @@ namespace local_matching.SingleSearch
                     case "ADDRESS8":
                         // All the address ones come here, we may increase scoreds (any can be done) or add a new score
                         // by doing address searches. E.g. +10 points for a matching line, +3 points for them being consecutive
-                        break;
                     default:
                         // anything else it comes here
+                        ExpandAndCount(ref PRET, ref Counters, ref MyDBList,
+                            "MATCHINGCOUNT" + name,
+                                name.Substring(0, 3),
+                                    Convert.ToInt32(yamlc.GetRM("WEIGHT" + i)));
+
                         break;
                 }
             }
