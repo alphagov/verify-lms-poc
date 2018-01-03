@@ -15,25 +15,32 @@
 ID:       "local-matching-config"
 VERSION:  0.2
 DEBUG:    true      # true or false to show debug infomration in return to posts
-MATCH:    true      # do remote matching, if this is false, only local matching occurs
+MATCH:    true       # do remote matching, if this is false, only local matching occurs
 
 # ------------------------
 # Local Database Settings
 # ------------------------
 # The local database is known to the code, so it's structure is predefined by the LMS API
 
-#LODBC:     "Microsoft Access Driver (*.mdb, *.accdb)"
-#LSERVER:   "127.0.0.1"
-#LDB:       "Dbq=.\\demo-LMS.accdb"
-#LDBUN:     "Admin"
-#LDBPW:     ""
+LODBC:     "Microsoft Access Driver (*.mdb, *.accdb)"
+LSERVER:   "127.0.0.1"
+LDB:       "Dbq=.\\demo-LMS.accdb"
+LDBUN:     "Admin"
+LDBPW:     ""
 
 #----------------------- This has been left in as an example of MariaDB conenctor
-LODBC:     "MariaDB ODBC 3.0 Driver"
-LSERVER:   "127.0.0.1"
-LDB:       "Database=LMS"
-LDBUN:     "root"
-LDBPW:     "mypass"
+#LODBC:     "MariaDB ODBC 3.0 Driver"
+#LSERVER:   "127.0.0.1"
+#LDB:       "Database=LMS"
+#LDBUN:     "root"
+#LDBPW:     "mypass"
+
+#----------------------- This has been left in as an example of MySQL conenctor
+#LODBC:     "MySQL ODBC 5.3 Driver"
+#LSERVER:   "172.17.0.2"
+#LDB:       "Database=LMS"
+#LDBUN:     "root"
+#LDBPW:     "mypass"
 
 # ------------------------
 # Remote Database Settings
@@ -94,7 +101,7 @@ LMatching:
 # Notice in this example, the first "name" isn't actually used, it isn't even relevant, it's just
 # used to differentiate in the internal syntax.
 #
-RMatching:
+RMatching-B:
     -   Name:   ["Combined","DoB","Surname","Postcode"]
         Weight: 100
         Query:  "SELECT DISTINCT a.*
@@ -105,7 +112,7 @@ RMatching:
 
 # These examples still do the same as above, but it is trawling for many results rather than focusing
 # on a single record like the above example
-RMatching-B:
+RMatching:
     -   Name:   "DoB"
         Weight: 10
         Query:  "SELECT DISTINCT a.ID,a.DateOfBirth
@@ -125,12 +132,12 @@ RMatching-B:
                  WHERE a.PostCode LIKE '#POSTCODE#%'"
 
     # This is fancy, it's looking for the house number only, or first part anyway!
-    -   Name:   "Address?"
-        Weight: 10
-        Query:  "SELECT DISTINCT a.*
-                 FROM OneHundredThousandPeople a
-                 WHERE  LEFT( UCASE(a.Address1) , INSTR(a.Address1,' ') ) = 
-                        LEFT( UCASE('#ADDRESS1#') , INSTR(UCASE('#ADDRESS1#'),' ') )"
+#    -   Name:   "Address?"
+#        Weight: 10
+#        Query:  "SELECT DISTINCT a.*
+#                 FROM OneHundredThousandPeople a
+#                 WHERE  LEFT( UCASE(a.Address1) , INSTR(a.Address1,' ') ) = 
+#                        LEFT( UCASE('#ADDRESS1#') , INSTR(UCASE('#ADDRESS1#'),' ') )"
 # ------------------------
 # Remote Matching Settings
 # ------------------------

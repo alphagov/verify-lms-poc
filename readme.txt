@@ -14,6 +14,8 @@ docker exec -it mariadbtest bash
 mysql -u root -p
 (mypass)
 
+#MySQL ODBC 5.3 Driver
+
 # Create the LMS database
 CREATE SCHEMA `LMS` ;
 
@@ -29,3 +31,12 @@ SELECT * from Matches
 
 # Delete an ID
 DELETE from Matches WHERE ID=xxxx;
+
+#-----------------------------------------------------------------------------------------------------
+# Creating a linux version
+#
+docker build -t local-matching .
+docker run -d -p 6000:6000 --name verifylms local-matching
+
+# This takes you to the bash in the container, here you could edit the YAML file
+docker exec -it verifylms bash
