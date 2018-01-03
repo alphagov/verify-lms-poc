@@ -78,7 +78,7 @@ namespace local_matching.YAMLC
             // Examine the stream
             YamlMappingNode mapping;
 
-            string[] listSET = new string[] { "ID", "VERSION", "DEBUG" };
+            string[] listSET = new string[] { "ID", "VERSION", "DEBUG" , "MATCH" };
             string[] listLS = new string[] { "ODBC", "SERVER", "DB", "DBUN", "DBPW" };
 
             try

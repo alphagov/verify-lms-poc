@@ -14,25 +14,26 @@
 
 ID:       "local-matching-config"
 VERSION:  0.2
-DEBUG:    true
+DEBUG:    true      # true or false to show debug infomration in return to posts
+MATCH:    true      # do remote matching, if this is false, only local matching occurs
 
 # ------------------------
 # Local Database Settings
 # ------------------------
 # The local database is known to the code, so it's structure is predefined by the LMS API
 
-LODBC:     "Microsoft Access Driver (*.mdb, *.accdb)"
-LSERVER:   "127.0.0.1"
-LDB:       "Dbq=.\\demo-LMS.accdb"
-LDBUN:     "Admin"
-LDBPW:     ""
+#LODBC:     "Microsoft Access Driver (*.mdb, *.accdb)"
+#LSERVER:   "127.0.0.1"
+#LDB:       "Dbq=.\\demo-LMS.accdb"
+#LDBUN:     "Admin"
+#LDBPW:     ""
 
 #----------------------- This has been left in as an example of MariaDB conenctor
-    #LODBC:     "MariaDB ODBC 3.0 Driver"
-    #LSERVER:   "127.0.0.1"
-    #LDB:       "Database=LMS"
-    #LDBUN:     "root"
-    #LDBPW:     "mypass"
+LODBC:     "MariaDB ODBC 3.0 Driver"
+LSERVER:   "127.0.0.1"
+LDB:       "Database=LMS"
+LDBUN:     "root"
+LDBPW:     "mypass"
 
 # ------------------------
 # Remote Database Settings

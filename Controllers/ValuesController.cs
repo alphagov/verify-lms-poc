@@ -69,17 +69,33 @@ namespace local_matching.Controllers
             {
 #if DEBUG
                 Console.WriteLine("WE FOUND A CYCLE 0 MATCH - "+match_id);
-                PRET.Add("CYCLE0MATCH", "True");
 #endif
+                PRET.Add("CYCLE0MATCH", "True");
                 // If we have a match, don't bother trawling local database
                 // unless we are in debug mode. We like to still do it, because
                 // its quicker to debug
                 if (yamlc.GetSet("DEBUG") != "true")
                 {
-                    return "{ result: matched }";
+                    return "{ result: match , location: local }";
                 }
             }
-            // Do a trawl of the remote database
+            else
+            {
+                // Add a sensible messag to the debug trace
+                PRET.Add("NO-MATCH", "Nothing in the local database was found.");
+            }
+            
+            if (yamlc.GetSet("MATCH") != "true")
+            {
+                // If we are debug mode, just return back the PRET
+                if (yamlc.GetSet("DEBUG") == "true")
+                {
+                    return PRET;
+                }
+                else // Make sure we say no-match occured
+                    return "{ result: no-match, location: local }";
+            }
+                // Do a trawl of the remote database
             value.TrawlRemoteDatabase(ref yamlc, ref PRET);
 
             // Single in on the specific account we are after
@@ -132,9 +148,9 @@ namespace local_matching.Controllers
                 return PRET;
 
             if (!string.IsNullOrEmpty(resu))
-                return "{ result: match }";
+                return "{ result: match , location: remote }";
             else
-                return "{ result: no-match }";
+                return "{ result: no-match , location: anywhere }";
 
         }
 
