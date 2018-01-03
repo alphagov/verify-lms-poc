@@ -55,10 +55,10 @@ namespace local_matching.Controllers
             }
 
             // Create the results dictionary
-            Dictionary <string,string> PRET;// = new Dictionary<string, string>{};
+            Dictionary <string,string> PRET = new Dictionary<string, string>{};
 
-            // Process the YAML config
-            PRET = value.Process( ref yamlc );
+            // Process the matching class
+            value.Process( ref yamlc , ref PRET );
 
             // See if we already have it
             value.AlreadyCreatedSearch( ref yamlc , ref PRET );
@@ -71,6 +71,13 @@ namespace local_matching.Controllers
                 Console.WriteLine("WE FOUND A CYCLE 0 MATCH - "+match_id);
                 PRET.Add("CYCLE0MATCH", "True");
 #endif
+                // If we have a match, don't bother trawling local database
+                // unless we are in debug mode. We like to still do it, because
+                // its quicker to debug
+                if (yamlc.GetSet("DEBUG") != "true")
+                {
+                    return "{ result: matched }";
+                }
             }
             // Do a trawl of the remote database
             value.TrawlRemoteDatabase(ref yamlc, ref PRET);
@@ -89,11 +96,30 @@ namespace local_matching.Controllers
                 if (string.IsNullOrEmpty( match_id ))
                 {
                     string acnt = resu.Substring( 0, resu.IndexOf(" "));
-                    // insert the row
+
+                    // insert the row isn't just as simple, as we will be pulling out parameters
+                    // into PRET which will could already exist
+
+                    // Create the results NEW dictionary
+                    Dictionary<string, string> PRETNEW = new Dictionary<string, string> { };
+
+                    // Call the account creation
                     createAccount newrow = new createAccount();
+
+                    // Set up the create values
                     newrow.Pid = value.HashedPid;
                     newrow.AccountId = acnt;
-                    newrow.Process( ref yamlc );
+
+                    // Do it
+                    newrow.Process( ref yamlc , ref PRETNEW );
+
+                    // Now we must add all of the NEW to the OLD
+                    foreach (KeyValuePair<string, string> entry in PRETNEW)
+                    {
+                        // do something with entry.Value or entry.Key
+                        PRET.Add("CreateAccount_"+entry.Key,entry.Value);
+                    }
+
                 }
             }
             else
@@ -130,8 +156,10 @@ namespace local_matching.Controllers
             }
 
             // Create the results dictionary and process YAMLC
+            // Create the results dictionary
+            Dictionary<string, string> PRET = new Dictionary<string, string> { };
 
-            Dictionary<string, string> PRET = PRET = value.Process( ref yamlc );
+            value.Process( ref yamlc , ref PRET );
 
             // See if we are already there, if not, create a new entry
             if (yamlc.GetSet("DEBUG")=="true")

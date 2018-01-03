@@ -75,7 +75,7 @@ LCreate:
 
 LMatching:
     -   Name:   "PiD"
-        Query:  "SELECT DISTINCT Id,PiD,AccountID
+        Query:  "SELECT DISTINCT Id,PiD,AccountID,TimeS
                  FROM Matches
                  WHERE PiD = '#PID#'"
 
@@ -93,7 +93,7 @@ LMatching:
 # Notice in this example, the first "name" isn't actually used, it isn't even relevant, it's just
 # used to differentiate in the internal syntax.
 #
-RMatching-A:
+RMatching:
     -   Name:   ["Combined","DoB","Surname","Postcode"]
         Weight: 100
         Query:  "SELECT DISTINCT a.*
@@ -104,7 +104,7 @@ RMatching-A:
 
 # These examples still do the same as above, but it is trawling for many results rather than focusing
 # on a single record like the above example
-RMatching:
+RMatching-B:
     -   Name:   "DoB"
         Weight: 10
         Query:  "SELECT DISTINCT a.ID,a.DateOfBirth

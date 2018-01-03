@@ -19,9 +19,9 @@ namespace local_matching.Matching
 
     public partial class matching
     {
-        public dynamic Process(ref YAML_Config yamlc)
+        public dynamic Process(ref YAML_Config yamlc, ref Dictionary<string, string> PRET)
         {
-            Dictionary<string,string> PRET = new Dictionary<string,string>{};
+            //Dictionary<string,string> PRET = new Dictionary<string,string>{};
 
             // Find out what the cycle3 matching values are
             PRET.Add("HASHPID", GetSafe(this.HashedPid));

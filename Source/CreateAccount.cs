@@ -19,10 +19,10 @@ namespace local_matching.CreateAccount
     public partial class    createAccount
     {
 
-        public dynamic Process( ref YAML_Config yamlc)
+        public dynamic Process( ref YAML_Config yamlc, ref Dictionary<string, string> PRET )
         {
             // Pret is where we are going to put all of our answers
-            Dictionary <string,string> PRET = new Dictionary <string,string>{};
+            //Dictionary <string,string> PRET = new Dictionary <string,string>{};
             
             // Find out what the PID and LoA values are
             PRET.Add( "PID" , GetSafe(this.Pid) );
@@ -214,7 +214,18 @@ namespace local_matching.CreateAccount
                 testDB.Go( yamlc.GetLC( yamlc.GetLC("SEARCH1") ).Replace("#" + sep[0].ToUpper() + "#", PRET.GetValueOrDefault(sep[0].ToUpper()))
                                                                 .Replace("#" + sep[1].ToUpper() + "#", PRET.GetValueOrDefault(sep[1].ToUpper()))                                    
                                                                 );
-                PRET.Add("INSERTING", "NewRecord");
+
+                // This tries to report what the line was that we created in the database
+                string[] retchk = testDB.Read(yamlc.GetLM(yamlc.GetLM("SEARCH1")).Replace("#" + yamlc.GetLM("SEARCH1").ToUpper() + "#", PRET.GetValueOrDefault(yamlc.GetLM("SEARCH1").ToUpper())));
+
+                if (retchk.Count() > 0)
+                {
+                    PRET.Add("INSERTED", retchk[0].ToString());
+                }
+                else
+                {
+                    PRET.Add("INSERTING", "NewRecord");
+                }
             }
 
             // We always return the PRET, not a success or failure, that is handled in the value controller
