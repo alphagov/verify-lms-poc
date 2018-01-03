@@ -1,6 +1,9 @@
 # The following is an example of using the default MARIADB test docker to be built and used
 # for local matching database.
 
+# To get the mariadb docker image
+docker pull mariadb
+
 # These commands allow you to start the mariadb partition.
 docker run -p 3306:3306 --name mariadbtest -e MYSQL_ROOT_PASSWORD=mypass -d mariadb
 
