@@ -13,7 +13,8 @@ BEGIN {
 	ASCII="ABCDEFGHIJKLMNOPQRSTUVWXYZD"
         NUMBER="0123456789"
 
-	printf "\"%s\",\"%s\",\"%s\",\"%s%s\",\"%s\",\"%s%s\",\"%s%s%s\",\"%s\",\"%s%s%s\",\"%s\"\n" ,  "FirstName" , "MiddleName" , "SurName" , "Address1" , "" , "Address2" , "PostCode", ""  , "DateOfBirth","","","PhoneNumber", "Email","","","Gender"
+	printf "\"%s\",\"%s\",\"%s\",\"%s\",\"%s%s\",\"%s\",\"%s%s\",\"%s%s%s\",\"%s\",\"%s%s%s\",\"%s\"\n" ,  "ID" , "FirstName" , "MiddleName" , "SurName" , "Address1" , "" , "Address2" , "PostCode", ""  , "DateOfBirth","","","PhoneNumber", "Email","","","Gender"
+
 
 }
 
@@ -74,7 +75,7 @@ BEGIN {
 		_gen = "Male"
 	}
 
-	printf "\"%s\",\"%s\",\"%s\",\"%s %s\",\"%s\",\"%s%s\",\"%s/%s/%s\",\"%s\",\"%s.%s@%s\",\"%s\"\n" ,  _fn , _mn , _ln , _hn , _st ,_ad[2] , _ad[1], _pcn  , _dob_y,_dob_m,_dob_d,_pn,tolower(_fn),tolower(_ln),tolower(_do), _gen
+	printf "\"%s\",\"%s\",\"%s\",\"%s\",\"%s %s\",\"%s\",\"%s%s\",\"%s/%s/%s\",\"%s\",\"%s.%s@%s\",\"%s\"\n" , NR , _fn , _mn , _ln , _hn , _st ,_ad[2] , _ad[1], _pcn  , _dob_y,_dob_m,_dob_d,_pn,tolower(_fn),tolower(_ln),tolower(_do), _gen
 
 
 }

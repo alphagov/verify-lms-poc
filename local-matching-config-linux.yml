@@ -22,20 +22,6 @@ MATCH:    false       # do remote matching, if this is false, only local matchin
 # ------------------------
 # The local database is known to the code, so it's structure is predefined by the LMS API
 
-#LODBC:     "Microsoft Access Driver (*.mdb, *.accdb)"
-#LSERVER:   "127.0.0.1"
-#LDB:       "Dbq=.\\demo-LMS.accdb"
-#LDBUN:     "Admin"
-#LDBPW:     ""
-
-#----------------------- This has been left in as an example of MariaDB conenctor
-#LODBC:     "MariaDB ODBC 3.0 Driver"
-#LSERVER:   "127.0.0.1"
-#LDB:       "Database=LMS"
-#LDBUN:     "root"
-#LDBPW:     "mypass"
-
-#----------------------- This has been left in as an example of MySQL conenctor
 LODBC:     "MySQL ODBC 5.3 Driver"
 LSERVER:   "172.17.0.2"
 LDB:       "Database=LMS"
@@ -48,11 +34,11 @@ LDBPW:     "mypass"
 # Remote databases can be varied in the arrangement, we will try to map our "known" local to
 # unknown structure of the remote database.
            
-RODBC:     "Microsoft Access Driver (*.mdb, *.accdb)"
-RSERVER:   "127.0.0.1"
-RDB:       "Dbq=.\\demo-LMS.accdb"
-RDBUN:     "Admin"
-RDBPW:     ""
+RODBC:     "MySQL ODBC 5.3 Driver"
+RSERVER:   "172.17.0.2"
+RDB:       "Database=LMS"
+RDBUN:     "root"
+RDBPW:     "mypass"
 
 # ------------------------------------------------------------------------------------------------
 # The following sections use substitution and label matching, to make this work, you must ensure
@@ -106,7 +92,7 @@ RMatching-B:
         Weight: 100
         Query:  "SELECT DISTINCT a.*
                  FROM OneHundredThousandPeople a
-                 WHERE  DATEDIFF('d',a.DateOfBirth,'#DOB#')=0
+                 WHERE  DATEDIFF(a.DateOfBirth,'#DOB#')=0
                  AND    UCASE(a.SurName) LIKE UCASE('#SURNAME#')
                  AND    a.PostCode LIKE '#POSTCODE#%'"
 
@@ -117,7 +103,7 @@ RMatching:
         Weight: 10
         Query:  "SELECT DISTINCT a.ID,a.DateOfBirth
                  FROM OneHundredThousandPeople a
-                 WHERE  DATEDIFF('d',a.DateOfBirth,'#DOB#')=0"
+                 WHERE  DATEDIFF(a.DateOfBirth,'#DOB#')=0"
 
     -   Name:   "Surname"
         Weight: 10
@@ -131,86 +117,3 @@ RMatching:
                  FROM OneHundredThousandPeople a
                  WHERE a.PostCode LIKE '#POSTCODE#%'"
 
-    # This is fancy, it's looking for the house number only, or first part anyway!
-#    -   Name:   "Address?"
-#        Weight: 10
-#        Query:  "SELECT DISTINCT a.*
-#                 FROM OneHundredThousandPeople a
-#                 WHERE  LEFT( UCASE(a.Address1) , INSTR(a.Address1,' ') ) = 
-#                        LEFT( UCASE('#ADDRESS1#') , INSTR(UCASE('#ADDRESS1#'),' ') )"
-# ------------------------
-# Remote Matching Settings
-# ------------------------
-# Matching names must be at least 3 characters, and those 3 characters cannot be duplicated
-# in another search, e.g. POSSIBLE and POSITION both have POS as their first 3 characters so
-# are not legal in the searching. This is due to the way that database results are collated 
-
-# This is the oldest approach using a complex database structure, albiet with very few records
-# in the test database.
-
-RMatching-C:
-                # Notice here we are actually defining how we do the remote search, 
-                # using only the first character. Better do it in config, rather than
-                # code modification
-    -   Name:   "Surname"
-        Weight: 10
-        Query:  "SELECT DISTINCT a.Id,b.Surname,b.Verified,b.FromDate,b.ToDate
-                FROM Account a
-                LEFT JOIN Surname b ON a.Id = b.IdRef 
-                WHERE UCASE(b.Surname) LIKE LEFT(UCASE('#SURNAME#') , 1 )+'%'"
-
-                # DOB is simple in its search, we are looking for the date difference
-                # in days to be zero, but we could also search for the same day, same month, 
-                # same year and combine the results. Here we are using a little cheat to
-                # reuse the DOB (there is one further down). We assign it to another unique
-                # variable (2DOB) but we never actually use it here, but we have another DOB
-                # in the same multi-query block so we can't reuse it.
-    -   Name:   ["2DOB","DoB"]
-        Weight: 10
-        Query:  "SELECT DISTINCT a.ID,a.DoB,a.DoBVerified
-                 FROM Account a
-                 WHERE  DATEDIFF('d',a.DoB,'#DOB#')=0"
-
-                # {Postcodes are interesting, we could, as here, use it in its literal form
-                # but we could also try and pull back for areas, or sub-areas using just the first
-                # letters and the numbers that make it up
-    -   Name:   "Postcode"
-        Weight: 10
-        Query:  "SELECT DISTINCT a.ID,b.Postcode,b.InternationalPostcode,b.Verified,b.FromDate,b.ToDate
-                 FROM Account a
-                 LEFT JOIN Address b on a.Id = b.IdLink
-                 WHERE b.Postcode LIKE '#POSTCODE#'"
-
-                 # This is obviously obsolete, we could have had "OR b.InternationalPostcode LIKE '#POSTCODE#'"
-                 # in the above SQL statement, but this is demonstrating that you can keep adding new queries
-                 # to access anything you want in the remote database to return it.
-    -   Name:   "InternationalPostcode"
-        Weight: 1
-        Query:  "SELECT DISTINCT a.ID,b.Postcode,b.InternationalPostcode,b.Verified,b.FromDate,b.ToDate
-                 FROM Account a
-                 LEFT JOIN Address b on a.Id = b.IdLink
-                 WHERE b.InternationalPostcode LIKE '#INTERNATIONALPOSTCODE#'"
-
-                # This method is using two names for subsitution, we must be careful to not accidently
-                # reuse fields (e.g DoB) otherwise it'll get confused when it brings back results
-    -   Name:   ["DoB","Surname"]
-        Weight: 100
-        Query:  "SELECT DISTINCT a.Id,b.Surname,b.Verified,b.FromDate,b.ToDate,a.DoB,a.DoBVerified
-                FROM Account a
-                LEFT JOIN Surname b ON a.Id = b.IdRef 
-                WHERE UCASE(b.Surname) LIKE LEFT(UCASE('#SURNAME#') , 1 )+'%'
-                AND  DATEDIFF('d',a.DoB,'#DOB#')=0"
-            
-                # This method is using the Address? directive, since address has multiple lines we need
-                # to be able to search using them. Notice than when you use them for replication you
-                # need to specifiy which line of the address, here we are using the first one, #ADDRESS1#
-                # We only use the house number in this example (it leaves the space on the end).
-    -   Name:   ["Address?","Postcode"]
-        Weight: 1000
-        Query:  "SELECT DISTINCT a.ID,b.Postcode,b.InternationalPostcode,b.Verified,b.FromDate,b.ToDate,c.Line
-                 FROM Account a, Address b, AddressLines c
-                 WHERE  a.ID = b.IDLink
-                 AND    b.Postcode = '#POSTCODE#'
-                 AND    b.ID = c.IDLink
-                 AND    LEFT( UCASE(c.Line) , INSTR(c.line,' ') ) = 
-                        LEFT( UCASE('#ADDRESS1#') , INSTR(UCASE('#ADDRESS1#'),' ') )"

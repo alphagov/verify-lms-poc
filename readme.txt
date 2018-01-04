@@ -1,7 +1,7 @@
 # The following is an example of using the default MARIADB test docker to be built and used
 # for local matching database.
 
-# To get the mariadb docker image
+# To get the mariadb docker image (This will be replaced once Dockerfile is included in the test data)
 docker pull mariadb
 
 # These commands allow you to start the mariadb partition.
@@ -11,10 +11,7 @@ docker run -p 3306:3306 --name mariadbtest -e MYSQL_ROOT_PASSWORD=mypass -d mari
 docker exec -it mariadbtest bash
 
 # This gets you into MYSQL (maria) you must also provide the password
-mysql -u root -p
-(mypass)
-
-#MySQL ODBC 5.3 Driver
+mysql -uroot -pmypass
 
 # Create the LMS database
 CREATE SCHEMA `LMS` ;
@@ -23,8 +20,10 @@ CREATE SCHEMA `LMS` ;
 USE LMS;
 
 # Create the local matching table
-CREATE TABLE Matches ( ID BIGINT AUTO_INCREMENT, PiD varchar(80) NOT NULL, TimeS DATETIME, 
-			AccountID varchar(80), PRIMARY KEY (ID), key (PiD) );
+CREATE TABLE Matches ( ID BIGINT AUTO_INCREMENT, PiD varchar(80) NOT NULL, TimeS DATETIME, AccountID varchar(80), PRIMARY KEY (ID), key (PiD) );
+
+# Makes the test database
+CREATE TABLE OneHundredThousandPeople ( ID BIGINT AUTO_INCREMENT, FirstName varchar(80), MiddleName varchar(80), SurName varchar(80), Address1 varchar(80), Address2 varchar(80),PostCode varchar(80), DateofBirth DATETIME, PhoneNumber varchar(80), Email varchar(80), Gender varchar(80), PRIMARY KEY (ID), key (DateOfBirth), key (PostCode) );
 
 # List everything in the table
 SELECT * from Matches
@@ -33,9 +32,22 @@ SELECT * from Matches
 DELETE from Matches WHERE ID=xxxx;
 
 #-----------------------------------------------------------------------------------------------------
-# Creating a linux version
+# Creating The Test Data (for People100k)
+#
+# To do this, you need to be running bash in some form and be within the ../data-gen/ directory
+
+./generate-verify-data.sh > People100k.csv
+docker cp People100k.csv mariadbtest:/tmp/.
+
+# Loading the test data file
+LOAD DATA INFILE '/tmp/People100k.csv' INTO TABLE OneHundredThousandPeople  FIELDS TERMINATED BY ',' ENCLOSED BY '"'  LINES TERMINATED BY '\n'  IGNORE 1 LINES;
+
+#-----------------------------------------------------------------------------------------------------
+# Creating a linux version using the MySQL ODBC 5.3 Driver
 #
 docker build -t local-matching .
+
+# Execute the image
 docker run -d -p 6000:6000 --name verifylms local-matching
 
 # This takes you to the bash in the container, here you could edit the YAML file
