@@ -1,0 +1,103 @@
+{
+	"info": {
+		"name": "Verify",
+		"_postman_id": "da763687-8933-1a95-f4b7-21d5409e23d3",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:6000/local-matching/match",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"cycle3Dataset\": {\n    \"attributes\": {\n         \"drivers_licence\": \"4C22DA90A18A4B88BE460E0A3D975F68\"\n\t}\n  },\n  \"hashedPid\": \"00754148-902f-4d94-b0db-cb1f7eb3fd84\",\n  \"levelOfAssurance\": \"LEVEL_2\",\n  \"matchId\": \"00754148-902f-4d94-b0db-cb1f7eb3fd84\",\n  \"matchingDataset\": {\n    \"addresses\": [\n      {\n        \"fromDate\": \"1980-05-24T00:00:00.000Z\",\n        \"internationalPostCode\": \"NE3 3DA\",\n        \"lines\": [\n          \"123 George Street\",\"Kenton\",\"Newcastle upon Tyne\",\"Tyne & Wear\",\"England\",\"United Kingdom\",\"Earth\",\"Sol\",\"Milkyway\",\"Universe 13\"\n        ],\n        \"postCode\": \"NE3 3DA\",\n        \"toDate\": \"2005-05-14T00:00:00.000Z\",\n        \"uprn\": \"7D68E096-5510-B3844C0BA3FD\",\n        \"verified\": true\n      },\n      {\n        \"fromDate\": \"2005-05-14T00:00:00.000Z\",\n        \"internationalPostCode\": \"NE3 3DA\",\n        \"lines\": [\n          \"10 George Avenue\",\"Gosforth\"\n        ],\n        \"postCode\": \"NE3 3DA\",\n        \"uprn\": \"833F1187-9F33-A7E27B3F211E\",\n        \"verified\": true\n      }\n    ],\n    \"dateOfBirth\": {\n      \"value\": \"1980-05-24\",\n      \"verified\": true\n    },\n    \"firstName\": {\n      \"value\": \"Joe\",\n      \"verified\": true\n    },\n    \"gender\": {\n      \"value\": \"MALE\",\n      \"verified\": true\n    },\n    \"middleNames\": {\n      \"value\": \"Bob Rob\",\n      \"verified\": true\n    },\n    \"surnames\": [\n      {\n        \"from\": \"1980-05-24T00:00:00.000Z\",\n        \"to\": \"2010-01-20T00:00:00.000Z\",\n        \"value\": \"Fred\",\n        \"verified\": true\n      },\n      {\n        \"from\": \"2010-01-20T00:00:00.000Z\",\n        \"value\": \"Hump\",\n        \"verified\": true\n      }\n    ]\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:6000/local-matching/match",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"local-matching",
+						"match"
+					]
+				},
+				"description": "Driving license match example"
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:6000/local-matching/match",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"hashedPid\": \"00754148-902f-4d94-b0db-cb1f7eb3fd84\",\r\n    \"levelOfAssurance\": \"LEVEL_2\",\r\n    \"matchId\": \"00754148-902f-4d94-b0db-cb1f7eb3fd84\",\r\n    \"matchingDataset\": {\r\n        \"addresses\": [\r\n            {\r\n                \"fromDate\": \"1980-05-24T00:00:00.000Z\",\r\n                \"internationalPostCode\": \"GB1 2PP\",\r\n                \"lines\": [\r\n                    \"10 Philip Street\"\r\n                ],\r\n                \"postCode\": \"GB1 2PP\",\r\n                \"toDate\": \"2005-05-14T00:00:00.000Z\",\r\n                \"uprn\": \"7D68E096-5510-B3844C0BA3FD\",\r\n                \"verified\": true\r\n            },\r\n            {\r\n                \"fromDate\": \"2005-05-14T00:00:00.000Z\",\r\n                \"internationalPostCode\": \"GB1 2PF\",\r\n                \"lines\": [\r\n                    \"47 Philip Street\",\r\n                    \"Somewhere\",\r\n            \t\t\"Dodgy Ciy\"\r\n                ],\r\n                \"postCode\": \"TD28 7JE\",\r\n                \"uprn\": \"833F1187-9F33-A7E27B3F211E\",\r\n                \"verified\": true\r\n            }\r\n        ],\r\n        \"dateOfBirth\": {\r\n            \"value\": \"1971-11-08\",\r\n            \"verified\": true\r\n        },\r\n        \"firstName\": {\r\n            \"value\": \"Joe\",\r\n            \"verified\": true\r\n        },\r\n        \"gender\": {\r\n            \"value\": \"MALE\",\r\n            \"verified\": true\r\n        },\r\n        \"middleNames\": {\r\n            \"value\": \"Bob Rob\",\r\n            \"verified\": true\r\n        },\r\n        \"surnames\": [\r\n            {\r\n                \"from\": \"1980-05-24T00:00:00.000Z\",\r\n                \"to\": \"2010-01-20T00:00:00.000Z\",\r\n                \"value\": \"Fred\",\r\n                \"verified\": true\r\n            },\r\n            {\r\n                \"from\": \"2010-01-20T00:00:00.000Z\",\r\n                \"value\": \"Nickerson\",\r\n                \"verified\": true\r\n            }\r\n        ]\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:6000/local-matching/match",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "6000",
+					"path": [
+						"local-matching",
+						"match"
+					]
+				},
+				"description": "Matching example"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:6000/local-matching/create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"pid\": \"00754148-902f-4d94-b0db-cb1f7eb3fd84\",\r\n    \"username\": \"user1\",\r\n    \"password\": \"password\",\r\n    \"firstName\": {\r\n        \"value\": \"Fred\",\r\n        \"verified\": true\r\n    },\r\n    \"gender\": {\r\n        \"value\": \"MALE\",\r\n        \"verified\": false\r\n    },\r\n    \"dateOfBirth\": {\r\n        \"value\": \"1973-02-01\",\r\n        \"verified\": true\r\n    },\r\n    \"address\": {\r\n        \"verified\": true,\r\n        \"postCode\": \"WC2B 6NH\",\r\n        \"lines\": [\r\n            \"Aviation House\",\r\n            \"London\"\r\n        ]\r\n    },\r\n    \"levelOfAssurance\": \"LEVEL_2\",\r\n    \"surnames\": [{\r\n        \"value\": \"Smith\",\r\n        \"verified\": true,\r\n        \"fromDate\": \"1995-4-3\",\r\n        \"toDate\": \"2015-1-3\"\r\n    \t},\r\n    \t{\r\n        \"value\": \"Smith-Jones\",\r\n        \"verified\": true,\r\n        \"fromDate\": \"2015-1-3\"\r\n    }]\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:6000/local-matching/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"local-matching",
+						"create"
+					]
+				},
+				"description": "Create account example"
+			},
+			"response": []
+		}
+	]
+}

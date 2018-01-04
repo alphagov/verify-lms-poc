@@ -13,6 +13,9 @@ docker exec -it mariadbtest bash
 # This gets you into MYSQL (maria) you must also provide the password
 mysql -uroot -pmypass
 
+# As a single command outside the container
+docker exec -it mariadbtest mysql -uroot -pmypass
+
 # Create the LMS database
 CREATE SCHEMA `LMS` ;
 
@@ -52,3 +55,14 @@ docker run -d -p 6000:6000 --name verifylms local-matching
 
 # This takes you to the bash in the container, here you could edit the YAML file
 docker exec -it verifylms bash
+
+# This command to modify the configuration YAML file
+vi local-matching-config.yml
+
+#-----------------------------------------------------------------------------------------------------
+# To find out the IP addresses within the Docker Bridge use this command
+#
+docker network inspect bridge
+
+# The IP address of the mariadbtest must be set into the local-matching-config.yml file
+

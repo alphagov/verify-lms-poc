@@ -117,3 +117,11 @@ RMatching:
                  FROM OneHundredThousandPeople a
                  WHERE a.PostCode LIKE '#POSTCODE#%'"
 
+    # This is fancy, it's looking for the house number only, or first part anyway!
+    -   Name:   "Address?"
+        Weight: 10
+        Query:  "SELECT DISTINCT a.*
+                 FROM OneHundredThousandPeople a
+                 WHERE  LEFT( UCASE(a.Address1) , LOCATE(' ',a.Address1) ) =
+                        LEFT( UCASE('#ADDRESS1#') , LOCATE(' ','#ADDRESS1#') )"
+
