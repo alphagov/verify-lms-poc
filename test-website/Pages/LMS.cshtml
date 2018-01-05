@@ -3,8 +3,60 @@
 @{
     ViewData["Title"] = "LMS";
 }
+
+<!-- jQuery UI CSS Reference -->
+<link href="@Url.Content("~/Content/themes/base/minified/jquery-ui.min.css")" rel="stylesheet" />
+<!-- Required jQuery and jQuery UI Javascript references -->
+<script src="@Url.Content("~/Scripts/jquery-1.7.1.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery-ui-1.10.4.min.js")"></script>
+
+<!--
+<javascript>
+   $.ajax({
+    type: "POST",
+    url: "/Receiver",
+    data: $('#myForm').serialize(),
+    datatype: "html",
+    success: function (data) {
+        $('#result').html(data);
+    }
+}); 
+</javascript>
+-->
+
 <h2>@ViewData["Title"]</h2>
 <h3>@Model.Message</h3>
 
 <p>This is the main LMS page, here we will be allowing both free-form editing, 
     and prepoluation using a number of test JSON from a database, or files.</p>
+
+<form id="myForm">
+    <div>
+        @Html.Label("firstname","First Name" ) 
+        @Html.TextBox("firstname", "Mike")
+    </div>
+    <div>    
+        @Html.Label("lastname","Last Name") 
+        @Html.TextBox("lastname", "Brind")
+    </div>
+    <div>    
+        @Html.Label("dateofbirth","Date of Birth") 
+        @Html.TextBox("dateofbirth", "Brind")
+    </div>
+    <div>    
+        <!-- Examples of creating a Datepicker -->
+        @Html.Label( "dateof", "Date of") 
+        @Html.TextBox("dateof", "", new { @class = "date-picker" })
+    </div>
+    
+    <div>
+        @Html.Label("Gender", "gender")
+        @Html.RadioButton("gender", "male", true) Male
+        @Html.RadioButton("gender", "female") Female
+    </div>
+</form>
+<a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkID=525029&clcid=0x409" 
+        onclick="alert('hello world'); return false;">
+    Trigger LMS
+</a>
+
