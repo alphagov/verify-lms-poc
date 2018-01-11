@@ -4,13 +4,17 @@
     ViewData["Title"] = "LMS";
 }
 
-<!-- jQuery UI CSS Reference -->
-<link href="@Url.Content("~/Content/themes/base/minified/jquery-ui.min.css")" rel="stylesheet" />
-<!-- Required jQuery and jQuery UI Javascript references -->
-<script src="@Url.Content("~/Scripts/jquery-1.7.1.min.js")"></script>
-<script src="@Url.Content("~/Scripts/jquery-ui-1.10.4.min.js")"></script>
 
+<!-- Required jQuery and jQuery UI Javascript references -->
+<!-- jQuery UI CSS Reference -->
 <!--
+<script src="@Url.Content("~/lib/jquery/dist/jquery.js")"></script>
+<script src="@Url.Content("~/lib/jquery-ui-1.12.1/jquery-ui.min.js")"></script>
+
+<link href="@Url.Content("~/lib/jquery-ui-1.12.1/jquery-ui.min.css")" rel="stylesheet"/>
+<link href="@Url.Content("~/lib/jquery-ui-1.12.1/jquery-ui.structure.min.css")" rel="stylesheet"/>
+<link href="@Url.Content("~/lib/jquery-ui-1.12.1/jquery-ui.theme.min.css")" rel="stylesheet"/>
+
 <javascript>
    $.ajax({
     type: "POST",
@@ -23,6 +27,15 @@
 }); 
 </javascript>
 -->
+
+@section Scripts {
+<script type="text/javascript">
+    $(document).ready(function(){
+            //Your jQuery and DatePicker code here
+         $('#date-picker').datepicker();
+     });
+</script>
+}
 
 <h2>@ViewData["Title"]</h2>
 <h3>@Model.Message</h3>
@@ -46,7 +59,7 @@
     <div>    
         <!-- Examples of creating a Datepicker -->
         @Html.Label( "dateof", "Date of") 
-        @Html.TextBox("dateof", "", new { @class = "date-picker" })
+        @Html.TextBox("date-picker", "2018/1/1", new { @class = "datepicker" })
     </div>
     
     <div>
