@@ -14011,7 +14011,8 @@ var widgetsSelectmenu = $.widget( "ui.selectmenu", [ $.ui.formResetMixin, {
 				.find( ".ui-menu-item-wrapper" );
 
 		this._rendered = true;
-
+		
+		
 		if ( !options.length ) {
 			return;
 		}
@@ -14095,6 +14096,7 @@ var widgetsSelectmenu = $.widget( "ui.selectmenu", [ $.ui.formResetMixin, {
 		var that = this,
 			currentOptgroup = "";
 
+			
 		$.each( items, function( index, item ) {
 			var li;
 

@@ -31,8 +31,19 @@
 @section Scripts {
 <script type="text/javascript">
     $(document).ready(function(){
-            //Your jQuery and DatePicker code here
-         $('#date-picker').datepicker();
+        
+        //Your jQuery and DatePicker code here
+         $('#dateofbirth').datepicker();
+         $('#dobverdate').datepicker();
+         $('#genverdate').datepicker();
+         $('#surverdateto').datepicker();
+         $('#surverdatefrom').datepicker();
+       
+       
+         $('#debuginfo').accordion({
+                    active: false, collapsible: true
+            });
+         
      });
 </script>
 }
@@ -44,32 +55,138 @@
     and prepoluation using a number of test JSON from a database, or files.</p>
 
 <form id="myForm">
-    <div>
-        @Html.Label("firstname","First Name" ) 
-        @Html.TextBox("firstname", "Mike")
+    <div class="ui-grid-b">
+       <div class="ui-block-a">
+           <legend>Talk to Service</legend><br>
+            <a class="btn btn-default btn-lg" onclick="alert('hello world'); return false;">
+                Trigger LMS
+            </a>
+        </div>
+        <div class="ui-block-b">
+            <legend>JSON Service Call</legend><br>
+            <fieldset data-role="controlgroup" data-type="horizontal" class="ui-corner-all ui-controlgroup ui-controlgroup-horizontal">
+                <input type="radio" name="radio-choice-h-1" id="radio-choice-h-1a" value="match" checked="checked">
+                <label for="radio-choice-h-1a">MATCH</label>
+                <input type="radio" name="radio-choice-h-1" id="radio-choice-h-1b" value="create">
+                <label for="radio-choice-h-1b">CREATE</label>
+            </fieldset>
+        </div>
+        <div class="ui-block-c" align="center">
+            <legend>Pre-load Pattern</legend>
+            <a class="btn btn-default btn-lg" onclick="alert('hello world'); return false;">
+                New
+            </a>&nbsp;
+            <a class="btn btn-default btn-lg" onclick="alert('hello world'); return false;">
+                Load
+            </a>&nbsp;
+            <a class="btn btn-default btn-lg" onclick="alert('hello world'); return false;">
+                Save
+            </a><br>
+            @Html.DropDownList("pattern", new List<SelectListItem>
+            {
+                new SelectListItem{ Text="Option 1", Value = "1" },
+                new SelectListItem{ Text="Option 2", Value = "2" },
+                new SelectListItem{ Text="Option 3", Value = "3" },
+            })
+        </div>
     </div>
-    <div>    
-        @Html.Label("lastname","Last Name") 
-        @Html.TextBox("lastname", "Brind")
+    <div class="ui-grid-solo" id="debuginfo">
+        <h5>Debug Window</h5>
+        <div class="ui-block-a" style="background-color:lightgrey;">
+            <p>This will be filled with the response from the service call.</p>
+        </div>
     </div>
-    <div>    
-        @Html.Label("dateofbirth","Date of Birth") 
-        @Html.TextBox("dateofbirth", "Brind")
+  <div class="ui-grid-solo">
+        <div class="ui-block-a" style="background-color:grey;">
+            <p>&nbsp;</p>
+        </div>
     </div>
-    <div>    
-        <!-- Examples of creating a Datepicker -->
-        @Html.Label( "dateof", "Date of") 
-        @Html.TextBox("date-picker", "2018/1/1", new { @class = "datepicker" })
+
+    <div class="ui-grid-solo">
+        <div class="ui-block-a">
+            <legend>Primary Identity</legend> 
+            @Html.TextBox("pid", "")
+        </div>
     </div>
-    
-    <div>
-        @Html.Label("Gender", "gender")
-        @Html.RadioButton("gender", "male", true) Male
-        @Html.RadioButton("gender", "female") Female
+    <div class="ui-grid-b">
+        <div class="ui-block-a">
+            <legend>First Name</legend> 
+            @Html.TextBox("firstname", "")
+        </div>
+        <div class="ui-block-b">
+            <legend>Middle Name</legend> 
+            @Html.TextBox("middlename", "")
+        </div>
+        <div class="ui-block-c">
+            <legend>Surname</legend> 
+            @Html.TextBox("lastname", "")
+        </div>
+    </div>
+
+    <div class="ui-grid-b">
+        <div class="ui-block-a" align="center">
+            <legend>Surtname Verified</legend>
+            <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" class="ui-corner-all ui-controlgroup ui-controlgroup-horizontal">
+                <input type="radio" name="radio-choice-h-5" id="radio-choice-h-5a" value="false" checked="checked">
+                <label for="radio-choice-h-5a">False</label>
+                <input type="radio" name="radio-choice-h-5" id="radio-choice-h-5b" value="true">
+                <label for="radio-choice-h-5b">True</label>
+            </fieldset>
+        </div>
+        <div class="ui-block-b">
+            <legend>Surname Verified From Date</legend>
+            @Html.TextBox("surverdatefrom", "")
+        </div>
+        <div class="ui-block-c">
+            <legend>Surname Verified To Date</legend>
+            @Html.TextBox("surverdateto", "")
+        </div>
+    </div>
+
+    <div class="ui-grid-b">
+        <div class="ui-block-a">
+            <legend>Gender</legend>
+            <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" class="ui-corner-all ui-controlgroup ui-controlgroup-horizontal">
+                <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2a" value="void" checked="checked">
+                <label for="radio-choice-h-2a">Private</label>
+                <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2b" value="female">
+                <label for="radio-choice-h-2b">Female</label>
+                <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2c" value="male">
+                <label for="radio-choice-h-2c">Male</label>
+            </fieldset>
+        </div>
+        <div class="ui-block-b" align="center">
+            <legend>Gender Verified</legend>
+            <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" class="ui-corner-all ui-controlgroup ui-controlgroup-horizontal">
+                <input type="radio" name="radio-choice-h-3" id="radio-choice-h-3a" value="false" checked="checked">
+                <label for="radio-choice-h-3a">False</label>
+                <input type="radio" name="radio-choice-h-3" id="radio-choice-h-3b" value="true">
+                <label for="radio-choice-h-3b">True</label>
+            </fieldset>
+        </div>
+        <div class="ui-block-c">
+            <legend>Gender Verified Date</legend>
+            @Html.TextBox("genverdate", "")
+        </div>
+    </div>
+    <div class="ui-grid-b">
+        <div class="ui-block-a">
+            <legend>Date of Birth</legend> 
+            @Html.TextBox("dateofbirth", "")
+        </div>
+        <div class="ui-block-b" align="center">
+            <legend>DoB Verified</legend>
+            <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" class="ui-corner-all ui-controlgroup ui-controlgroup-horizontal">
+                <input type="radio" name="radio-choice-h-4" id="radio-choice-h-4a" value="false" checked="checked">
+                <label for="radio-choice-h-4a">False</label>
+                <input type="radio" name="radio-choice-h-4" id="radio-choice-h-4b" value="true">
+                <label for="radio-choice-h-4b">True</label>
+            </fieldset>
+        </div>
+        <div class="ui-block-c">
+            <!-- Examples of creating a Datepicker -->
+            <legend>DoB Verified Date</legend> 
+            @Html.TextBox("dobverdate", "")
+        </div>
     </div>
 </form>
-<a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkID=525029&clcid=0x409" 
-        onclick="alert('hello world'); return false;">
-    Trigger LMS
-</a>
-
